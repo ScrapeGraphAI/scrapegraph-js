@@ -11,7 +11,13 @@
   "scripts": {
     "format": "prettier --write --cache --cache-strategy metadata . !dist",
     "lint": "eslint .",
-    "test": "node test/smartScraper_pagination_test.js"
+    "test": "node test/smartScraper_pagination_test.js",
+    "test:all": "node test/agenticScraper_test.js && node test/crawl_markdown_test.js && node test/credits_test.js && node test/feedback_test.js && node test/healthz_test.js && node test/markdownify_test.js && node test/schema_test.js && node test/scrape_test.js && node test/searchScraper_markdown_test.js && node test/scheduledJobs_test.js && node test/sitemap_test.js && node test/smartScraper_markdown_html_test.js && node test/smartScraper_pagination_test.js && node test/smartScraper_render_heavy_test.js && node test/stealth_mode_test.js && node test/toonify_test.js",
+    "test:credits": "node test/credits_test.js",
+    "test:feedback": "node test/feedback_test.js",
+    "test:schema": "node test/schema_test.js",
+    "test:toonify": "node test/toonify_test.js",
+    "test:markdownify": "node test/markdownify_test.js"
   },
   "license": "MIT",
   "homepage": "https://github.com/ScrapeGraphAI/scrapegraph-sdk/tree/main/scrapegraph-js",

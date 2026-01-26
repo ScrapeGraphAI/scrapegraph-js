@@ -16,6 +16,14 @@ Official JavaScript/TypeScript SDK for the ScrapeGraph AI API - Smart web scrapi
 - ⚡ Automatic retries and logging
 - 🔐 Secure API authentication
 - 🔧 AI-powered schema generation
+- 🤖 Agentic scraping with browser automation
+- 📅 Scheduled jobs with cron support
+- 🥷 Stealth mode to avoid bot detection
+- 🧪 Mock mode for testing and development
+- 🎨 Toonify for visual data representation
+- 🍪 Cookie support for authenticated scraping
+- 📜 Infinite scroll and pagination support
+- 🗺️ Sitemap discovery and crawling
 
 ## 📦 Installation
 
@@ -276,6 +284,118 @@ const totalPages = 5; // Scrape 5 pages
 })();
 ```
 
+### Agentic Scraper
+
+Perform automated browser actions on webpages using step-by-step instructions. Perfect for interacting with dynamic websites, filling forms, clicking buttons, and extracting data after performing actions.
+
+#### Basic Agentic Scraping (No AI Extraction)
+
+```javascript
+import { agenticScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const url = 'https://dashboard.example.com/';
+const steps = [
+  'Type email@gmail.com in email input box',
+  'Type password123 in password inputbox',
+  'Click on login button'
+];
+
+(async () => {
+  try {
+    const response = await agenticScraper(
+      apiKey,
+      url,
+      steps,
+      true,   // useSession
+      null,   // userPrompt (not needed for basic scraping)
+      null,   // outputSchema (not needed for basic scraping)
+      false   // aiExtraction = false
+    );
+    
+    console.log('Request ID:', response.request_id);
+    console.log('Status:', response.status);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Agentic Scraping with AI Extraction
+
+Extract structured data after performing browser actions:
+
+```javascript
+import { agenticScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const url = 'https://dashboard.example.com/';
+const steps = [
+  'Type email@gmail.com in email input box',
+  'Type password123 in password inputbox',
+  'Click on login button',
+  'Wait for dashboard to load completely'
+];
+
+const outputSchema = {
+  dashboard_info: {
+    type: "object",
+    properties: {
+      username: { type: "string" },
+      email: { type: "string" },
+      available_sections: { 
+        type: "array", 
+        items: { type: "string" } 
+      },
+      credits_remaining: { type: "number" }
+    },
+    required: ["username", "available_sections"]
+  }
+};
+
+const userPrompt = "Extract the user's dashboard information including username, email, available dashboard sections, and remaining credits";
+
+(async () => {
+  try {
+    const response = await agenticScraper(
+      apiKey,
+      url,
+      steps,
+      true,        // useSession
+      userPrompt,  // userPrompt for AI extraction
+      outputSchema, // outputSchema for structured data
+      true         // aiExtraction = true
+    );
+    
+    console.log('Request ID:', response.request_id);
+    console.log('Status:', response.status);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Get Agentic Scraper Request Status
+
+```javascript
+import { getAgenticScraperRequest } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const requestId = 'your-request-id';
+
+(async () => {
+  try {
+    const response = await getAgenticScraperRequest(apiKey, requestId);
+    console.log('Status:', response.status);
+    if (response.status === 'completed') {
+      console.log('Result:', response.result);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
 ### Search Scraping
 
 Search and extract information from multiple web sources using AI.
@@ -402,41 +522,13 @@ You can use a plain JSON schema or a [Zod](https://www.npmjs.com/package/zod) sc
 - Efficient crawling of structured websites
 - Perfect for e-commerce, news sites, and content-heavy websites
 
-### Scraping local HTML
-
-Extract structured data from local HTML content
-
-```javascript
-import { localScraper } from 'scrapegraph-js';
-
-const apiKey = 'your_api_key';
-const prompt = 'What does the company do?';
-
-const websiteHtml = `<html>
-                      <body>
-                        <h1>Company Name</h1>
-                        <p>We are a technology company focused on AI solutions.</p>
-                        <div class="contact">
-                          <p>Email: contact@example.com</p>
-                        </div>
-                      </body>
-                    </html>`;
-(async () => {
-  try {
-    const response = await localScraper(apiKey, websiteHtml, prompt);
-    console.log(response);
-  } catch (error) {
-    console.error(error);
-  }
-})();
-```
 
 ### Markdownify
 
 Converts a webpage into clean, well-structured markdown format.
 
 ```javascript
-import { smartScraper } from 'scrapegraph-js';
+import { markdownify } from 'scrapegraph-js';
 
 const apiKey = 'your_api_key';
 const url = 'https://scrapegraphai.com/';
@@ -507,6 +599,337 @@ const feedbackText = 'This is a test feedback message.';
     console.error('Error sending feedback:', error);
   }
 })();
+```
+
+### Scheduled Jobs
+
+Create and manage scheduled scraping jobs that run automatically on a cron schedule. Perfect for monitoring websites, collecting data periodically, and automating repetitive scraping tasks.
+
+#### Create a Scheduled Job
+
+```javascript
+import { createScheduledJob } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+
+(async () => {
+  try {
+    const job = await createScheduledJob(
+      apiKey,
+      'Daily News Scraper',        // jobName
+      'smartscraper',               // serviceType
+      '0 9 * * *',                  // cronExpression (daily at 9 AM)
+      {
+        website_url: 'https://news.ycombinator.com',
+        user_prompt: 'Extract the top 5 news titles and their URLs',
+        render_heavy_js: false
+      },
+      true                          // isActive
+    );
+    
+    console.log('Job created:', job.id);
+    console.log('Job name:', job.job_name);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### List All Scheduled Jobs
+
+```javascript
+import { getScheduledJobs } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+
+(async () => {
+  try {
+    const response = await getScheduledJobs(apiKey, { page: 1, pageSize: 10 });
+    console.log('Total jobs:', response.total);
+    
+    response.jobs.forEach(job => {
+      console.log(`- ${job.job_name} (${job.service_type}) - Active: ${job.is_active}`);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Get, Update, Pause, Resume, and Delete Jobs
+
+```javascript
+import {
+  getScheduledJob,
+  updateScheduledJob,
+  pauseScheduledJob,
+  resumeScheduledJob,
+  deleteScheduledJob,
+  triggerScheduledJob,
+  getJobExecutions
+} from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const jobId = 'your-job-id';
+
+(async () => {
+  try {
+    // Get job details
+    const job = await getScheduledJob(apiKey, jobId);
+    console.log('Job details:', job);
+    
+    // Update job
+    const updated = await updateScheduledJob(apiKey, jobId, {
+      jobName: 'Updated Job Name',
+      cronExpression: '0 8 * * *' // Change to 8 AM
+    });
+    console.log('Updated job:', updated);
+    
+    // Pause job
+    await pauseScheduledJob(apiKey, jobId);
+    
+    // Resume job
+    await resumeScheduledJob(apiKey, jobId);
+    
+    // Manually trigger job
+    const triggerResult = await triggerScheduledJob(apiKey, jobId);
+    console.log('Execution ID:', triggerResult.execution_id);
+    
+    // Get execution history
+    const executions = await getJobExecutions(apiKey, jobId, { page: 1, pageSize: 10 });
+    console.log('Total executions:', executions.total);
+    
+    // Delete job
+    await deleteScheduledJob(apiKey, jobId);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+**Supported Service Types:**
+- `smartscraper` - Smart scraping with AI extraction
+- `searchscraper` - Search-based scraping
+- `crawl` - Website crawling
+- `markdownify` - Markdown conversion
+- `scrape` - Basic HTML scraping
+
+**Cron Expression Format:**
+```
+┌───────────── minute (0 - 59)
+│ ┌───────────── hour (0 - 23)
+│ │ ┌───────────── day of month (1 - 31)
+│ │ │ ┌───────────── month (1 - 12)
+│ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday)
+│ │ │ │ │
+* * * * *
+```
+
+Examples:
+- `0 9 * * *` - Daily at 9 AM
+- `0 10 * * 1` - Every Monday at 10 AM
+- `*/15 * * * *` - Every 15 minutes
+- `0 0 1 * *` - First day of every month at midnight
+
+### Toonify
+
+Convert structured data into a visual "toon" format. Useful for creating visual representations of scraped data.
+
+```javascript
+import { toonify } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const data = {
+  products: [
+    { sku: "LAP-001", name: "Gaming Laptop", price: 1299.99 },
+    { sku: "MOU-042", name: "Wireless Mouse", price: 29.99 }
+  ]
+};
+
+(async () => {
+  try {
+    const result = await toonify(apiKey, data);
+    console.log('Toonified result:', result);
+  } catch (error) {
+    console.error('Error toonifying data:', error);
+  }
+})();
+```
+
+### Stealth Mode
+
+Enable stealth mode to avoid bot detection when scraping websites. Stealth mode uses advanced techniques to make requests appear more like those from a real browser.
+
+#### Using Stealth Mode with SmartScraper
+
+```javascript
+import { smartScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const url = 'https://example.com';
+const prompt = 'Extract product information';
+
+(async () => {
+  try {
+    const response = await smartScraper(
+      apiKey,
+      url,
+      prompt,
+      null,   // schema
+      null,   // numberOfScrolls
+      null,   // totalPages
+      null,   // cookies
+      {},     // options
+      false,  // plain_text
+      false,  // renderHeavyJs
+      true    // stealth - Enable stealth mode
+    );
+    
+    console.log('Result:', response.result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Using Stealth Mode with Other Endpoints
+
+Stealth mode is available for all major endpoints:
+
+```javascript
+import { scrape, searchScraper, markdownify, agenticScraper, crawl } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+
+// Scrape with stealth mode
+const scrapeResult = await scrape(apiKey, 'https://example.com', {
+  stealth: true,
+  renderHeavyJs: true
+});
+
+// SearchScraper with stealth mode
+const searchResult = await searchScraper(apiKey, 'Search query', 5, null, null, {
+  stealth: true,
+  extractionMode: true
+});
+
+// Markdownify with stealth mode
+const markdownResult = await markdownify(apiKey, 'https://example.com', {
+  stealth: true
+});
+
+// AgenticScraper with stealth mode
+const agenticResult = await agenticScraper(apiKey, 'https://example.com', ['click button'], true, null, null, false, {
+  stealth: true
+});
+
+// Crawl with stealth mode
+const crawlResult = await crawl(apiKey, 'https://example.com', 'Extract data', schema, {
+  stealth: true,
+  depth: 2,
+  maxPages: 5
+});
+```
+
+### Mock Mode
+
+Mock mode allows you to test your code without making actual API calls. Perfect for development, testing, and CI/CD pipelines.
+
+#### Enable Mock Mode Globally
+
+```javascript
+import { enableMock, disableMock, getCredits, smartScraper } from 'scrapegraph-js';
+
+// Enable mock mode globally
+enableMock();
+
+const apiKey = 'mock-api-key';
+
+(async () => {
+  try {
+    // All API calls will return mock responses
+    const credits = await getCredits(apiKey);
+    console.log('Mock credits:', credits);
+    
+    const result = await smartScraper(apiKey, 'https://example.com', 'Extract data');
+    console.log('Mock result:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    // Disable mock mode when done
+    disableMock();
+  }
+})();
+```
+
+#### Per-Request Mock Mode
+
+```javascript
+import { scrape, smartScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+
+(async () => {
+  try {
+    // Enable mock for specific requests
+    const result = await scrape(apiKey, 'https://example.com', { mock: true });
+    console.log('Mock scrape result:', result);
+    
+    const smartResult = await smartScraper(apiKey, 'https://example.com', 'Test', null, null, null, null, { mock: true });
+    console.log('Mock smartScraper result:', smartResult);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Custom Mock Responses
+
+```javascript
+import { setMockResponses, getCredits, smartScraper, enableMock } from 'scrapegraph-js';
+
+enableMock();
+
+// Set custom mock responses
+setMockResponses({
+  '/v1/credits': {
+    remaining_credits: 1000,
+    total_credits_used: 500
+  },
+  '/v1/smartscraper': () => ({
+    request_id: 'custom-mock-id',
+    status: 'completed',
+    result: { custom_data: 'Generated by custom function' }
+  })
+});
+
+const apiKey = 'mock-api-key';
+
+(async () => {
+  try {
+    const credits = await getCredits(apiKey);
+    console.log('Custom credits:', credits);
+    
+    const result = await smartScraper(apiKey, 'https://example.com', 'Test');
+    console.log('Custom result:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+#### Environment Variable Activation
+
+You can also enable mock mode using the `SGAI_MOCK` environment variable:
+
+```bash
+export SGAI_MOCK=1
+node your-script.js
+```
+
+Or in your `.env` file:
+```
+SGAI_MOCK=1
 ```
 
 ### AI-Powered Schema Generation
@@ -625,6 +1048,8 @@ Converts a webpage into HTML format with optional JavaScript rendering.
 - `options` (object, optional): Configuration options
   - `renderHeavyJs` (boolean, optional): Whether to render heavy JavaScript (default: false)
   - `headers` (object, optional): Custom headers to send with the request
+  - `stealth` (boolean, optional): Enable stealth mode to avoid bot detection (default: false)
+  - `mock` (boolean, optional): Override mock mode for this request
 
 **Returns:** Promise that resolves to an object containing:
 - `html`: The HTML content of the webpage
@@ -636,7 +1061,8 @@ Converts a webpage into HTML format with optional JavaScript rendering.
 ```javascript
 const response = await scrape(apiKey, 'https://example.com', {
   renderHeavyJs: true,
-  headers: { 'User-Agent': 'Custom Agent' }
+  headers: { 'User-Agent': 'Custom Agent' },
+  stealth: true
 });
 ```
 
@@ -657,7 +1083,7 @@ const result = await getScrapeRequest(apiKey, 'request-id-here');
 
 ### Smart Scraper
 
-#### `smartScraper(apiKey, url, prompt, schema, numberOfScrolls, totalPages, cookies)`
+#### `smartScraper(apiKey, url, prompt, schema, numberOfScrolls, totalPages, cookies, options, plainText, renderHeavyJs, stealth)`
 
 Extracts structured data from websites using AI-powered scraping.
 
@@ -666,15 +1092,43 @@ Extracts structured data from websites using AI-powered scraping.
 - `url` (string): The URL of the website to scrape
 - `prompt` (string): Natural language prompt describing what to extract
 - `schema` (object, optional): Zod schema for structured output
-- `numberOfScrolls` (number, optional): Number of scrolls for infinite scroll pages
+- `numberOfScrolls` (number, optional): Number of scrolls for infinite scroll pages (0-100)
 - `totalPages` (number, optional): Number of pages to scrape
 - `cookies` (object, optional): Cookies for authentication
+- `options` (object, optional): Additional options
+  - `mock` (boolean): Override mock mode for this request
+- `plainText` (boolean, optional): Whether to return plain text instead of structured data
+- `renderHeavyJs` (boolean, optional): Whether to render heavy JavaScript (default: false)
+- `stealth` (boolean, optional): Enable stealth mode to avoid bot detection (default: false)
+
+**Returns:** Promise that resolves to an object containing:
+- `result`: Extracted data (structured or plain text)
+- `request_id`: Unique identifier for the request
+- `status`: Request status
 
 ### Search Scraper
 
-#### `searchScraper(apiKey, prompt, url, numResults, headers, outputSchema)`
+#### `searchScraper(apiKey, prompt, numResults, schema, userAgent, options)`
 
 Searches and extracts information from multiple web sources using AI.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `prompt` (string): Search query or prompt
+- `numResults` (number, optional): Number of results to return
+- `schema` (object, optional): Schema for structured output
+- `userAgent` (string, optional): Custom user agent string
+- `options` (object, optional): Additional options
+  - `stealth` (boolean): Enable stealth mode
+  - `extractionMode` (boolean): Whether to use AI extraction
+  - `renderHeavyJs` (boolean): Whether to render heavy JavaScript
+  - `mock` (boolean): Override mock mode for this request
+
+**Returns:** Promise that resolves to an object containing:
+- `result`: Extracted search results
+- `request_id`: Unique identifier for the request
+- `status`: Request status
+- `reference_urls`: Array of URLs used for the search
 
 ### Crawl API
 
@@ -696,6 +1150,13 @@ Starts a crawl job to extract structured data from a website and its linked page
   - `sitemap` (boolean, default: false): Use sitemap.xml for better page discovery
   - `batchSize` (number, default: 1): Batch size for processing pages (1-10)
   - `renderHeavyJs` (boolean, default: false): Whether to render heavy JavaScript
+  - `stealth` (boolean, default: false): Enable stealth mode to avoid bot detection
+  - `mock` (boolean): Override mock mode for this request
+
+**Returns:** Promise that resolves to an object containing:
+- `id` or `crawl_id`: Unique identifier for the crawl job
+- `status`: Crawl status
+- `message`: Status message
 
 **Sitemap Benefits:**
 - Better page discovery using sitemap.xml
@@ -703,11 +1164,38 @@ Starts a crawl job to extract structured data from a website and its linked page
 - Efficient crawling of structured websites
 - Perfect for e-commerce, news sites, and content-heavy websites
 
+#### `getCrawlRequest(apiKey, crawlId)`
+
+Retrieves the status or result of a previous crawl request.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `crawlId` (string): The unique identifier for the crawl request
+
+**Returns:** Promise that resolves to the crawl result object.
+
 ### Markdownify
 
-#### `markdownify(apiKey, url, headers)`
+#### `markdownify(apiKey, url, options)`
 
 Converts a webpage into clean, well-structured markdown format.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `url` (string): The URL of the webpage to convert
+- `options` (object, optional): Configuration options
+  - `stealth` (boolean): Enable stealth mode
+  - `renderHeavyJs` (boolean): Whether to render heavy JavaScript
+  - `mock` (boolean): Override mock mode for this request
+
+**Returns:** Promise that resolves to an object containing:
+- `result`: Markdown content
+- `request_id`: Unique identifier for the request
+- `status`: Request status
+
+#### `getMarkdownifyRequest(apiKey, requestId)`
+
+Retrieves the status or result of a previous markdownify request.
 
 ### Sitemap
 
@@ -723,12 +1211,186 @@ Extracts all URLs from a website's sitemap. Automatically discovers sitemap from
 
 **Returns:** Promise resolving to an object containing:
 - `urls` (array): List of URLs extracted from the sitemap
+- `sitemap_url`: The sitemap URL that was used
 
 ### Agentic Scraper
 
-#### `agenticScraper(apiKey, url, steps, useSession, userPrompt, outputSchema, aiExtraction)`
+#### `agenticScraper(apiKey, url, steps, useSession, userPrompt, outputSchema, aiExtraction, options)`
 
 Performs automated actions on webpages using step-by-step instructions.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `url` (string): The URL of the webpage to interact with
+- `steps` (string[]): Array of step-by-step instructions (e.g., ["Type email@gmail.com in email input box", "click on login"])
+- `useSession` (boolean, optional): Whether to use session for the scraping operations (default: true)
+- `userPrompt` (string, optional): Prompt for AI extraction (required when aiExtraction=true)
+- `outputSchema` (object, optional): Schema for structured data extraction (used with aiExtraction=true)
+- `aiExtraction` (boolean, optional): Whether to use AI for data extraction from the scraped content (default: false)
+- `options` (object, optional): Additional options
+  - `mock` (boolean): Override mock mode for this request
+  - `renderHeavyJs` (boolean): Whether to render heavy JavaScript on the page
+  - `stealth` (boolean): Enable stealth mode to avoid bot detection
+
+**Returns:** Promise that resolves to an object containing:
+- `request_id`: Unique identifier for the request
+- `status`: Request status ('processing', 'completed', 'failed')
+
+**Example:**
+```javascript
+const response = await agenticScraper(
+  apiKey,
+  'https://example.com',
+  ['Type text in input', 'Click submit'],
+  true,
+  'Extract form data',
+  schema,
+  true,
+  { stealth: true }
+);
+```
+
+#### `getAgenticScraperRequest(apiKey, requestId)`
+
+Retrieves the status or result of a previous agentic scraper request.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `requestId` (string): The unique identifier for the agentic scraper request
+
+**Returns:** Promise that resolves to the request result object.
+
+### Scheduled Jobs
+
+#### `createScheduledJob(apiKey, jobName, serviceType, cronExpression, jobConfig, isActive, options)`
+
+Creates a new scheduled job that runs automatically on a cron schedule.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `jobName` (string): Name of the scheduled job
+- `serviceType` (string): Type of service ('smartscraper', 'searchscraper', 'crawl', 'markdownify', 'scrape')
+- `cronExpression` (string): Cron expression for scheduling (e.g., '0 9 * * *' for daily at 9 AM)
+- `jobConfig` (object): Configuration for the job (service-specific)
+- `isActive` (boolean, optional): Whether the job is active (default: true)
+- `options` (object, optional): Additional options
+  - `mock` (boolean): Override mock mode for this request
+
+**Returns:** Promise that resolves to the created job object.
+
+#### `getScheduledJobs(apiKey, options)`
+
+Retrieves a list of all scheduled jobs.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `options` (object, optional): Query options
+  - `page` (number): Page number (default: 1)
+  - `pageSize` (number): Number of jobs per page (default: 10)
+
+**Returns:** Promise that resolves to an object containing:
+- `jobs`: Array of job objects
+- `total`: Total number of jobs
+
+#### `getScheduledJob(apiKey, jobId)`
+
+Retrieves details of a specific scheduled job.
+
+#### `updateScheduledJob(apiKey, jobId, updates)`
+
+Updates a scheduled job.
+
+**Parameters:**
+- `updates` (object): Fields to update
+  - `jobName` (string, optional): New job name
+  - `cronExpression` (string, optional): New cron expression
+  - `jobConfig` (object, optional): Updated job configuration
+  - `isActive` (boolean, optional): Active status
+
+#### `pauseScheduledJob(apiKey, jobId)`
+
+Pauses a scheduled job.
+
+#### `resumeScheduledJob(apiKey, jobId)`
+
+Resumes a paused scheduled job.
+
+#### `triggerScheduledJob(apiKey, jobId)`
+
+Manually triggers a scheduled job execution.
+
+**Returns:** Promise that resolves to an object containing:
+- `execution_id`: Unique identifier for the execution
+- `message`: Status message
+
+#### `getJobExecutions(apiKey, jobId, options)`
+
+Retrieves execution history for a scheduled job.
+
+**Parameters:**
+- `options` (object, optional): Query options
+  - `page` (number): Page number (default: 1)
+  - `pageSize` (number): Number of executions per page (default: 10)
+
+**Returns:** Promise that resolves to an object containing:
+- `executions`: Array of execution objects
+- `total`: Total number of executions
+
+#### `deleteScheduledJob(apiKey, jobId)`
+
+Deletes a scheduled job.
+
+### Toonify
+
+#### `toonify(apiKey, data, options)`
+
+Converts structured data into a visual "toon" format.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `data` (object): The data object to be converted to toon format
+- `options` (object, optional): Configuration options
+  - `mock` (boolean): Override mock mode for this request
+
+**Returns:** Promise that resolves to the toonified data response.
+
+### Mock Mode Utilities
+
+#### `enableMock()`
+
+Enables mock mode globally. All API calls will return mock responses.
+
+#### `disableMock()`
+
+Disables mock mode globally.
+
+#### `setMockResponses(responses)`
+
+Sets custom mock responses for specific endpoints.
+
+**Parameters:**
+- `responses` (object): Object mapping endpoint paths to mock responses or functions that return mock responses
+
+**Example:**
+```javascript
+setMockResponses({
+  '/v1/credits': { remaining_credits: 100 },
+  '/v1/smartscraper': () => ({ request_id: 'mock-id', status: 'completed' })
+});
+```
+
+#### `setMockHandler(handler)`
+
+Sets a custom handler function that overrides all mock responses.
+
+**Parameters:**
+- `handler` (function): Function that takes (method, url) and returns a mock response
+
+#### `isMockEnabled()`
+
+Checks if mock mode is currently enabled.
+
+**Returns:** Boolean indicating mock mode status.
 
 ### Utility Functions
 
@@ -736,9 +1398,21 @@ Performs automated actions on webpages using step-by-step instructions.
 
 Retrieves your current credit balance and usage statistics.
 
+**Returns:** Promise that resolves to an object containing:
+- `remaining_credits`: Number of credits remaining
+- `total_credits_used`: Total credits used
+
 #### `sendFeedback(apiKey, requestId, rating, feedbackText)`
 
 Submits feedback for a specific request.
+
+**Parameters:**
+- `apiKey` (string): Your ScrapeGraph AI API key
+- `requestId` (string): The request ID to provide feedback for
+- `rating` (number): Rating from 1 to 5
+- `feedbackText` (string): Optional feedback text
+
+**Returns:** Promise that resolves to the feedback response.
 
 ## 📚 Documentation
 
