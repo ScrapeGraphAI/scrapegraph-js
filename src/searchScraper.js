@@ -21,11 +21,12 @@ import { getMockResponse } from './utils/mockResponse.js';
  * @param {boolean} [options.extractionMode=true] - Whether to use AI extraction (true) or markdown conversion (false).
  *                                                 AI extraction costs 10 credits per page, markdown conversion costs 2 credits per page.
  * @param {boolean} [options.stealth=false] - Enable stealth mode to avoid bot detection
+ * @param {string} [options.locationGeoCode=null] - The geo code of the location to search in (e.g., "us", "gb", "de")
  * @returns {Promise<string>} Extracted data in JSON format matching the provided schema
  * @throws - Will throw an error in case of an HTTP failure.
  */
 export async function searchScraper(apiKey, prompt, numResults = 3, schema = null, userAgent = null, options = {}) {
-  const { mock = null, renderHeavyJs = false, extractionMode = true, stealth = false } = options;
+  const { mock = null, renderHeavyJs = false, extractionMode = true, stealth = false, locationGeoCode = null } = options;
 
   // Check if mock mode is enabled
   const useMock = mock !== null ? mock : isMockEnabled();
@@ -59,6 +60,10 @@ export async function searchScraper(apiKey, prompt, numResults = 3, schema = nul
 
   if (stealth) {
     payload.stealth = stealth;
+  }
+
+  if (locationGeoCode) {
+    payload.location_geo_code = locationGeoCode;
   }
 
   if (schema) {
