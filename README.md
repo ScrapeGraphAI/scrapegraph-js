@@ -416,6 +416,28 @@ const prompt = 'What is the latest version of Python and what are its main featu
 })();
 ```
 
+#### Geo-Targeted Search
+
+Use `locationGeoCode` to target search results from a specific geographic location:
+
+```javascript
+import { searchScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const prompt = 'Best restaurants near me';
+
+(async () => {
+  try {
+    const response = await searchScraper(apiKey, prompt, 5, null, null, {
+      locationGeoCode: 'us' // Search results targeted to United States
+    });
+    console.log(response.result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
 ### Crawl API
 
 Start a crawl job to extract structured data from a website and its linked pages, using a custom schema.
@@ -1122,6 +1144,7 @@ Searches and extracts information from multiple web sources using AI.
   - `stealth` (boolean): Enable stealth mode
   - `extractionMode` (boolean): Whether to use AI extraction
   - `renderHeavyJs` (boolean): Whether to render heavy JavaScript
+  - `locationGeoCode` (string): The geo code of the location to search in (e.g., "us", "gb", "de")
   - `mock` (boolean): Override mock mode for this request
 
 **Returns:** Promise that resolves to an object containing:
