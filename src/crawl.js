@@ -37,7 +37,7 @@ export async function crawl(
   schema,
   options = {}
 ) {
-  const { mock = null, renderHeavyJs = false, stealth = false, includePaths = null, excludePaths = null, webhookUrl = null } = options;
+  const { mock = null, renderHeavyJs = false, stealth = false, includePaths = null, excludePaths = null, webhookUrl = null, extractionMode = true } = options;
 
   // Check if mock mode is enabled
   const useMock = mock !== null ? mock : isMockEnabled();
@@ -87,6 +87,7 @@ export async function crawl(
     sitemap,
     batch_size: batchSize,
     render_heavy_js: renderHeavyJs,
+    extraction_mode: extractionMode,
   };
 
   if (breadth !== null && breadth !== undefined) {
