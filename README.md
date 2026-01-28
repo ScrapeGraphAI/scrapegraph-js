@@ -438,6 +438,35 @@ const prompt = 'Best restaurants near me';
 })();
 ```
 
+#### Time Range Filter
+
+Use `timeRange` to filter search results by date range:
+
+```javascript
+import { searchScraper } from 'scrapegraph-js';
+
+const apiKey = 'your-api-key';
+const prompt = 'Latest news about AI';
+
+(async () => {
+  try {
+    const response = await searchScraper(apiKey, prompt, 5, null, null, {
+      timeRange: 'past_week' // Only results from the past week
+    });
+    console.log(response.result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+Available time range options:
+- `past_hour` - Results from the past hour
+- `past_24_hours` - Results from the past 24 hours
+- `past_week` - Results from the past week
+- `past_month` - Results from the past month
+- `past_year` - Results from the past year
+
 ### Crawl API
 
 Start a crawl job to extract structured data from a website and its linked pages, using a custom schema.
@@ -1145,6 +1174,7 @@ Searches and extracts information from multiple web sources using AI.
   - `extractionMode` (boolean): Whether to use AI extraction
   - `renderHeavyJs` (boolean): Whether to render heavy JavaScript
   - `locationGeoCode` (string): The geo code of the location to search in (e.g., "us", "gb", "de")
+  - `timeRange` (string): The date range to filter results. Options: "past_hour", "past_24_hours", "past_week", "past_month", "past_year"
   - `mock` (boolean): Override mock mode for this request
 
 **Returns:** Promise that resolves to an object containing:
