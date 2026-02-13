@@ -11,11 +11,12 @@ import { getMockResponse } from './utils/mockResponse.js';
  * @param {Object} options - Optional configuration options.
  * @param {boolean} options.mock - Override mock mode for this request
  * @param {boolean} [options.stealth=false] - Enable stealth mode to avoid bot detection
+ * @param {number} [options.waitMs] - Number of milliseconds to wait before scraping the website (default: 3000)
  * @returns {Promise<string>} A promise that resolves to the markdown representation of the webpage.
  * @throws {Error} Throws an error if the HTTP request fails.
  */
 export async function markdownify(apiKey, url, options = {}) {
-  const { mock = null, stealth = false } = options;
+  const { mock = null, stealth = false, waitMs = null } = options;
 
   // Check if mock mode is enabled
   const useMock = mock !== null ? mock : isMockEnabled();
@@ -39,6 +40,13 @@ export async function markdownify(apiKey, url, options = {}) {
 
   if (stealth) {
     payload.stealth = stealth;
+  }
+
+  if (waitMs !== null) {
+    if (!Number.isInteger(waitMs) || waitMs < 0) {
+      throw new Error('waitMs must be a positive integer');
+    }
+    payload.wait_ms = waitMs;
   }
 
   try {

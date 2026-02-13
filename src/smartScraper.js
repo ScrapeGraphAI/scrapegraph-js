@@ -26,10 +26,11 @@ import { getMockResponse, createMockAxiosResponse } from './utils/mockResponse.j
  * @param {boolean} [stealth] - Optional flag to enable stealth mode to avoid bot detection
  * @param {string} [websiteHtml] - Optional raw HTML content to process (max 2MB, mutually exclusive with url and websiteMarkdown)
  * @param {string} [websiteMarkdown] - Optional Markdown content to process (max 2MB, mutually exclusive with url and websiteHtml)
+ * @param {number} [waitMs] - Optional number of milliseconds to wait before scraping the website (default: 3000)
  * @returns {Promise<string>} Extracted data in JSON format matching the provided schema
  * @throws - Will throw an error in case of an HTTP failure or validation error.
  */
-export async function smartScraper(apiKey, url, prompt, schema = null, numberOfScrolls = null, totalPages = null, cookies = null, options = {}, plain_text = false, renderHeavyJs = false, stealth = false, websiteHtml = null, websiteMarkdown = null) {
+export async function smartScraper(apiKey, url, prompt, schema = null, numberOfScrolls = null, totalPages = null, cookies = null, options = {}, plain_text = false, renderHeavyJs = false, stealth = false, websiteHtml = null, websiteMarkdown = null, waitMs = null) {
   const { mock = null } = options;
 
   // Validate that exactly one of url, websiteHtml, or websiteMarkdown is provided
@@ -121,6 +122,13 @@ export async function smartScraper(apiKey, url, prompt, schema = null, numberOfS
 
   if (stealth) {
     payload.stealth = stealth;
+  }
+
+  if (waitMs !== null) {
+    if (!Number.isInteger(waitMs) || waitMs < 0) {
+      throw new Error('waitMs must be a positive integer');
+    }
+    payload.wait_ms = waitMs;
   }
 
   try {
