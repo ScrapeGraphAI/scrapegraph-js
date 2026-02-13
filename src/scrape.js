@@ -13,6 +13,7 @@ import { getMockResponse, createMockAxiosResponse } from './utils/mockResponse.j
  * @param {boolean} [options.branding=false] - Whether to include branding in the response (defaults to false).
  * @param {Object} options.headers - Optional custom headers to send with the request.
  * @param {boolean} [options.stealth=false] - Enable stealth mode to avoid bot detection
+ * @param {number} [options.waitMs] - Number of milliseconds to wait before scraping the website (default: 3000)
  * @returns {Promise<Object>} A promise that resolves to the HTML content and metadata.
  * @throws {Error} Throws an error if the HTTP request fails.
  *
@@ -57,7 +58,8 @@ export async function scrape(apiKey, url, options = {}) {
     branding = false,
     headers: customHeaders = {},
     mock = null,
-    stealth = false
+    stealth = false,
+    waitMs = null
   } = options;
 
   // Check if mock mode is enabled
@@ -89,6 +91,13 @@ export async function scrape(apiKey, url, options = {}) {
 
   if (stealth) {
     payload.stealth = stealth;
+  }
+
+  if (waitMs !== null) {
+    if (!Number.isInteger(waitMs) || waitMs < 0) {
+      throw new Error('waitMs must be a positive integer');
+    }
+    payload.wait_ms = waitMs;
   }
 
   // Only include headers in payload if they are provided
