@@ -1,0 +1,41 @@
+export {
+	smartScraper,
+	searchScraper,
+	markdownify,
+	scrape,
+	crawl,
+	agenticScraper,
+	generateSchema,
+	sitemap,
+	getCredits,
+	checkHealth,
+	history,
+} from "./scrapegraphai.js";
+
+export type {
+	AgenticScraperParams,
+	AgenticScraperResponse,
+	ApiResult,
+	CrawlParams,
+	CrawlPage,
+	CrawlResponse,
+	CreditsResponse,
+	GenerateSchemaParams,
+	GenerateSchemaResponse,
+	HealthResponse,
+	HistoryEntry,
+	HistoryParams,
+	HistoryResponse,
+	MarkdownifyParams,
+	MarkdownifyResponse,
+	ScrapeParams,
+	ScrapeResponse,
+	SearchScraperParams,
+	SearchScraperResponse,
+	SitemapParams,
+	SitemapResponse,
+	SmartScraperParams,
+	SmartScraperResponse,
+} from "./types/index.js";
+
+export { HISTORY_SERVICES } from "./types/index.js";
