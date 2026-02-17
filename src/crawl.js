@@ -27,6 +27,7 @@ import { getMockResponse } from './utils/mockResponse.js';
  * @param {Array<string>} [options.includePaths] - List of path patterns to include (e.g., ['/products/*', '/blog/**']). Supports wildcards: * matches any characters, ** matches any path segments
  * @param {Array<string>} [options.excludePaths] - List of path patterns to exclude (e.g., ['/admin/*', '/api/*']). Supports wildcards and takes precedence over includePaths
  * @param {string} [options.webhookUrl] - URL to receive webhook notifications when the crawl job completes
+ * @param {number|null} [options.waitMs] - Time in milliseconds to wait for JavaScript rendering (default 3000 on server)
  * @returns {Promise<Object>} The crawl job response
  * @throws {Error} Throws an error if the HTTP request fails
  */
@@ -37,7 +38,7 @@ export async function crawl(
   schema,
   options = {}
 ) {
-  const { mock = null, renderHeavyJs = false, stealth = false, includePaths = null, excludePaths = null, webhookUrl = null, extractionMode = true } = options;
+  const { mock = null, renderHeavyJs = false, stealth = false, includePaths = null, excludePaths = null, webhookUrl = null, extractionMode = true, waitMs = null } = options;
 
   // Check if mock mode is enabled
   const useMock = mock !== null ? mock : isMockEnabled();
@@ -108,6 +109,13 @@ export async function crawl(
 
   if (webhookUrl) {
     payload.webhook_url = webhookUrl;
+  }
+
+  if (waitMs !== null) {
+    if (!Number.isInteger(waitMs) || waitMs < 0) {
+      throw new Error('waitMs must be a positive integer');
+    }
+    payload.wait_ms = waitMs;
   }
 
   try {
