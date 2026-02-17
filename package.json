@@ -1,55 +1,43 @@
 {
-  "name": "scrapegraph-js",
-  "author": "ScrapeGraphAI",
-  "version": "0.3.1",
-  "description": "Scrape and extract structured data from a webpage using ScrapeGraphAI's APIs. Supports cookies for authentication, infinite scrolling, and pagination.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ScrapeGraphAI/scrapegraph-sdk.git",
-    "directory": "scrapegraph-js"
-  },
-  "scripts": {
-    "format": "prettier --write --cache --cache-strategy metadata . !dist",
-    "lint": "eslint .",
-    "test": "node test/smartScraper_pagination_test.js",
-    "test:all": "node test/agenticScraper_test.js && node test/crawl_markdown_test.js && node test/credits_test.js && node test/feedback_test.js && node test/healthz_test.js && node test/markdownify_test.js && node test/schema_test.js && node test/scrape_test.js && node test/searchScraper_markdown_test.js && node test/scheduledJobs_test.js && node test/sitemap_test.js && node test/smartScraper_markdown_html_test.js && node test/smartScraper_pagination_test.js && node test/smartScraper_render_heavy_test.js && node test/stealth_mode_test.js && node test/toonify_test.js",
-    "test:credits": "node test/credits_test.js",
-    "test:feedback": "node test/feedback_test.js",
-    "test:schema": "node test/schema_test.js",
-    "test:toonify": "node test/toonify_test.js",
-    "test:markdownify": "node test/markdownify_test.js"
-  },
-  "license": "MIT",
-  "homepage": "https://github.com/ScrapeGraphAI/scrapegraph-sdk/tree/main/scrapegraph-js",
-  "keywords": [
-    "scraping",
-    "webscraping",
-    "automated-scraper",
-    "gpt-3",
-    "gpt-4",
-    "llm",
-    "ai",
-    "cookies",
-    "authentication",
-    "session-management",
-    "infinite-scroll",
-    "pagination"
-  ],
-  "main": "index.js",
-  "module": "index.js",
-  "type": "module",
-  "dependencies": {
-    "axios": "^1.6.0",
-    "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.5"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.16.0",
-    "dotenv": "^16.4.5",
-    "eslint": "^9.16.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "globals": "^15.12.0",
-    "prettier": "3.4.1"
-  }
+	"name": "scrapegraph-js",
+	"version": "1.0.0",
+	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API — smart web scraping powered by AI",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"scripts": {
+		"dev": "tsup --watch",
+		"build": "tsup",
+		"lint": "biome check .",
+		"format": "biome format . --write",
+		"test": "bun test tests/",
+		"test:integration": "bun run integration_test.ts",
+		"check": "tsc --noEmit && biome check .",
+		"prepublishOnly": "tsup"
+	},
+	"keywords": ["scraping", "ai", "scrapegraph", "typescript", "sdk", "web-scraping", "api"],
+	"author": "ScrapeGraph Team",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ScrapeGraphAI/scrapegraph-sdk.git"
+	},
+	"homepage": "https://scrapegraphai.com",
+	"engines": {
+		"node": ">=22"
+	},
+	"files": ["dist"],
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "^1.3.9",
+		"@types/node": "^22.13.1",
+		"tsup": "^8.3.6",
+		"typescript": "^5.8.2"
+	}
 }
