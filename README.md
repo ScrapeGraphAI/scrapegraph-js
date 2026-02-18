@@ -207,6 +207,22 @@ const res = await history("key", {
 });
 ```
 
+## Examples
+
+Find complete working examples in the [`examples/`](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples) directory:
+
+| Service | Examples |
+|---|---|
+| [SmartScraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/smartscraper) | basic, cookies, html input, infinite scroll, markdown input, pagination, stealth, with schema |
+| [SearchScraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/searchscraper) | basic, markdown mode, with schema |
+| [Markdownify](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/markdownify) | basic, stealth |
+| [Scrape](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/scrape) | basic, stealth, with branding |
+| [Crawl](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/crawl) | basic, markdown mode, with schema |
+| [Agentic Scraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/agenticscraper) | basic, AI extraction |
+| [Schema Generation](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/schema) | basic, modify existing |
+| [Sitemap](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/sitemap) | basic, with smartscraper |
+| [Utilities](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/utilities) | credits, health, history |
+
 ## Environment Variables
 
 | Variable | Description | Default |
