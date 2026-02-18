@@ -5,3 +5,4 @@ bun.lock
 *.tsbuildinfo
 .env
 doc/
+.DS_Store
