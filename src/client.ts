@@ -2,7 +2,6 @@ import { request } from "./http.js";
 import type {
 	ApiCrawlOptions,
 	ApiExtractOptions,
-	ApiGenerateSchemaOptions,
 	ApiHistoryFilterInput,
 	ApiMonitorCreateInput,
 	ApiScrapeOptions,
@@ -60,20 +59,6 @@ export function scrapegraphai(config: ClientConfig) {
 				buildUrl("/v2/search"),
 				key,
 				{ query, ...searchOptions },
-				mergeRequestOptions(requestOptions),
-			);
-		},
-
-		async schema(
-			prompt: string,
-			schemaOptions?: ApiGenerateSchemaOptions,
-			requestOptions?: RequestOptions,
-		) {
-			return request(
-				"POST",
-				buildUrl("/v2/schema"),
-				key,
-				{ prompt, ...schemaOptions },
 				mergeRequestOptions(requestOptions),
 			);
 		},

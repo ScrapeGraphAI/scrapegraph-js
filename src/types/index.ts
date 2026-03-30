@@ -3,7 +3,6 @@ import type {
 	apiCrawlRequestSchema,
 	apiExtractRequestBaseSchema,
 	apiFetchConfigSchema,
-	apiGenerateSchemaRequestSchema,
 	apiHistoryFilterSchema,
 	apiHtmlModeSchema,
 	apiLlmConfigSchema,
@@ -36,7 +35,6 @@ export type ApiFetchConfig = z.infer<typeof apiFetchConfigSchema>;
 export type ApiLlmConfig = z.infer<typeof apiLlmConfigSchema>;
 export type ApiScrapeRequest = z.infer<typeof apiScrapeRequestSchema>;
 export type ApiExtractRequestBase = z.infer<typeof apiExtractRequestBaseSchema>;
-export type ApiGenerateSchemaRequest = z.infer<typeof apiGenerateSchemaRequestSchema>;
 export type ApiSearchRequest = z.infer<typeof apiSearchRequestSchema>;
 export type ApiHistoryFilterInput = z.infer<typeof apiHistoryFilterSchema>;
 export type ApiHistoryService = Exclude<ApiHistoryFilterInput["service"], undefined>;
@@ -48,6 +46,5 @@ export type ApiScrapeOptions = Omit<ApiScrapeRequest, "url">;
 export type ApiExtractOptions = Omit<ApiExtractRequestBase, "url" | "html" | "markdown"> & {
 	schema?: unknown;
 };
-export type ApiGenerateSchemaOptions = Omit<ApiGenerateSchemaRequest, "prompt">;
 export type ApiSearchOptions = Omit<ApiSearchRequest, "query">;
 export type ApiCrawlOptions = Omit<ApiCrawlRequest, "url">;

@@ -96,12 +96,6 @@ await sgai.search("What is the capital of France?", {
 });
 ```
 
-### schema
-
-```ts
-await sgai.schema("A product with name and price");
-```
-
 ### credits
 
 ```ts

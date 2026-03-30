@@ -5,7 +5,6 @@ import * as url from "./url.js";
 export const apiServiceEnumSchema = z.enum([
 	"scrape",
 	"extract",
-	"schema",
 	"search",
 	"monitor",
 	"crawl",
@@ -180,12 +179,6 @@ export const apiExtractRequestBaseSchema = z
 	.refine((d) => d.url || d.html || d.markdown, {
 		message: "Either url, html, or markdown is required",
 	});
-
-export const apiGenerateSchemaRequestSchema = z.object({
-	prompt: apiUserPromptSchema,
-	existingSchema: z.record(z.string(), z.unknown()).optional(),
-	model: z.enum(MODEL_NAMES).optional(),
-});
 
 export const apiSearchRequestSchema = z
 	.object({
