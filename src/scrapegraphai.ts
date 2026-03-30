@@ -24,7 +24,7 @@ import type {
 } from "./types/index.js";
 
 const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/v1";
-const HEALTH_URL = process.env.SGAI_API_URL
+const ROOT_URL = process.env.SGAI_API_URL
 	? `${process.env.SGAI_API_URL.replace(/\/v\d+$/, "")}`
 	: "https://api.scrapegraphai.com";
 const POLL_INTERVAL_MS = 3000;
@@ -298,7 +298,13 @@ export async function sitemap(
 
 export async function getCredits(apiKey: string): Promise<ApiResult<CreditsResponse>> {
 	try {
-		const { data, elapsedMs } = await request<CreditsResponse>("GET", "/credits", apiKey);
+		const { data, elapsedMs } = await request<CreditsResponse>(
+			"GET",
+			"/v2/credits",
+			apiKey,
+			undefined,
+			ROOT_URL,
+		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -312,7 +318,7 @@ export async function checkHealth(apiKey: string): Promise<ApiResult<HealthRespo
 			"/healthz",
 			apiKey,
 			undefined,
-			HEALTH_URL,
+			ROOT_URL,
 		);
 		return ok(data, elapsedMs);
 	} catch (err) {

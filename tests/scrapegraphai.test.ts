@@ -8,6 +8,7 @@ import * as scrapegraphai from "../src/scrapegraphai.js";
 
 const API_KEY = "test-sgai-key-abc123";
 const BASE = "https://api.scrapegraphai.com/v1";
+const ROOT = "https://api.scrapegraphai.com";
 
 function json(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {
@@ -31,9 +32,9 @@ function expectPost(callIndex: number, path: string, body?: object) {
 	if (body) expect(JSON.parse(init.body as string)).toEqual(body);
 }
 
-function expectGet(callIndex: number, path: string) {
+function expectGet(callIndex: number, path: string, base = BASE) {
 	const [url, init] = fetchSpy.mock.calls[callIndex] as [string, RequestInit];
-	expect(url).toBe(`${BASE}${path}`);
+	expect(url).toBe(`${base}${path}`);
 	expect(init.method).toBe("GET");
 	expect((init.headers as Record<string, string>)["SGAI-APIKEY"]).toBe(API_KEY);
 }
@@ -315,7 +316,7 @@ describe("getCredits", () => {
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
-		expectGet(0, "/credits");
+		expectGet(0, "/v2/credits", ROOT);
 	});
 });
 
@@ -328,8 +329,6 @@ describe("checkHealth", () => {
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
-		const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
-		expect(url).toBe("https://api.scrapegraphai.com/healthz");
-		expect(init.method).toBe("GET");
+		expectGet(0, "/healthz", ROOT);
 	});
 });
