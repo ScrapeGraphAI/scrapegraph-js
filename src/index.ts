@@ -2,13 +2,23 @@ export { scrapegraphai } from "./client.js";
 export type { ApiResult } from "./http.js";
 export type {
 	ApiCrawlOptions,
+	ApiCrawlRequest,
 	ApiExtractOptions,
+	ApiExtractRequestBase,
 	ApiFetchConfig,
 	ApiGenerateSchemaOptions,
+	ApiGenerateSchemaRequest,
 	ApiHistoryFilterInput,
+	ApiHistoryService,
+	ApiHtmlMode,
+	ApiLlmConfig,
+	ApiModelName,
 	ApiMonitorCreateInput,
+	ApiMonitorUpdateInput,
 	ApiScrapeOptions,
+	ApiScrapeRequest,
 	ApiSearchOptions,
+	ApiSearchRequest,
 	ClientConfig,
 	RequestOptions,
 } from "./types/index.js";
