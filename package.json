@@ -1,7 +1,7 @@
 {
 	"name": "scrapegraph-js",
 	"version": "2.0.0",
-	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API v2",
+	"description": "Official ScrapeGraphAI SDK",
 	"type": "module",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
@@ -14,15 +14,12 @@
 		}
 	},
 	"scripts": {
-		"dev": "tsup --watch",
-		"build": "tsup",
+		"build": "rm -rf dist && bun build ./src/index.ts --outfile ./dist/index.js --format esm --target node && bun build ./src/index.ts --outfile ./dist/index.cjs --format cjs --target node && bunx tsc --project tsconfig.json --emitDeclarationOnly",
 		"lint": "biome check .",
 		"format": "biome format . --write",
-		"test": "bun test tests/",
-		"test:integration": "bun run integration_test.ts",
 		"check": "tsc --noEmit && biome check .",
-		"type-check": "tsc --noEmit",
-		"prepublishOnly": "tsup"
+		"test": "bun test",
+		"type-check": "tsc --noEmit"
 	},
 	"keywords": [
 		"scraping",
@@ -58,7 +55,6 @@
 		"@biomejs/biome": "^2.4.4",
 		"@types/bun": "^1.3.9",
 		"@types/node": "^22.13.1",
-		"tsup": "^8.3.6",
 		"typescript": "^5.8.2",
 		"zod": "^4.1.12"
 	}

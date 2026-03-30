@@ -12,6 +12,7 @@ export function toJsonSchema(schema: unknown): Record<string, unknown> {
 	const def = getDef(schema);
 	if (!def) return schema as Record<string, unknown>;
 
+	// [NOTE] @Claude Zod v4 uses _def.type, v3 uses _def.typeName
 	const type = def.type ?? def.typeName;
 	const isV4 = def.type !== undefined;
 

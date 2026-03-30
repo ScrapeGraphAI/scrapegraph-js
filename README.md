@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/scrapegraph-js.svg)](https://badge.fury.io/js/scrapegraph-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Official JavaScript/TypeScript SDK for the ScrapeGraph AI API v2.
+Official ScrapeGraphAI SDK for the ScrapeGraph AI API v2.
 
 ## Install
 
@@ -138,13 +138,6 @@ await sgai.monitor.create({
   interval: "1h",
 });
 ```
-
-## Breaking Changes In v2
-
-- The SDK now uses `scrapegraphai(config)` instead of flat top-level functions.
-- Requests target the new `/v2/*` API surface.
-- Old helpers like `smartScraper`, `searchScraper`, `markdownify`, `agenticScraper`, `sitemap`, and `generateSchema` are not part of the v2 client.
-- `crawl` and `monitor` are now namespaced APIs.
 
 ## Development
 

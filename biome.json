@@ -31,6 +31,6 @@
 		}
 	],
 	"files": {
-		"includes": ["**", "!dist", "!node_modules", "!bun.lock", "!.claude", "!examples"]
+		"includes": ["**", "!dist", "!node_modules", "!bun.lock"]
 	}
 }

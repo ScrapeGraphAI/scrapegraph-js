@@ -50,6 +50,7 @@ export async function request<T = unknown>(
 		} catch (e) {
 			lastError = e instanceof Error ? e : new Error(String(e));
 			if (e instanceof DOMException && e.name === "TimeoutError") throw lastError;
+			// [NOTE] @Claude retry on network errors (fetch failed, connection refused)
 			if (e instanceof TypeError && attempt < maxRetries) {
 				await sleep(500 * 2 ** attempt);
 				continue;
