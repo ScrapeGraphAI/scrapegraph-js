@@ -1,7 +1,11 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"organizeImports": {
-		"enabled": true
+	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	},
 	"formatter": {
 		"enabled": true,
@@ -16,7 +20,7 @@
 	},
 	"overrides": [
 		{
-			"include": ["tests/**"],
+			"includes": ["tests/**"],
 			"linter": {
 				"rules": {
 					"suspicious": {
@@ -27,6 +31,6 @@
 		}
 	],
 	"files": {
-		"ignore": ["node_modules", "dist", "bun.lock", ".claude", "examples"]
+		"includes": ["**", "!dist", "!node_modules", "!bun.lock", "!.claude", "!examples"]
 	}
 }

@@ -1,14 +1,16 @@
 {
 	"name": "scrapegraph-js",
-	"version": "1.0.0",
-	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API — smart web scraping powered by AI",
+	"version": "2.0.0",
+	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API v2",
 	"type": "module",
-	"main": "dist/index.js",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"require": "./dist/index.cjs"
 		}
 	},
 	"scripts": {
@@ -19,25 +21,45 @@
 		"test": "bun test tests/",
 		"test:integration": "bun run integration_test.ts",
 		"check": "tsc --noEmit && biome check .",
+		"type-check": "tsc --noEmit",
 		"prepublishOnly": "tsup"
 	},
-	"keywords": ["scraping", "ai", "scrapegraph", "typescript", "sdk", "web-scraping", "api"],
+	"keywords": [
+		"scraping",
+		"ai",
+		"scrapegraph",
+		"typescript",
+		"sdk",
+		"web-scraping",
+		"api"
+	],
 	"author": "ScrapeGraph Team",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ScrapeGraphAI/scrapegraph-sdk.git"
+		"url": "https://github.com/ScrapeGraphAI/scrapegraph-js.git"
 	},
 	"homepage": "https://scrapegraphai.com",
 	"engines": {
 		"node": ">=22"
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
+	"peerDependencies": {
+		"zod": "^3.0.0 || ^4.0.0"
+	},
+	"peerDependenciesMeta": {
+		"zod": {
+			"optional": true
+		}
+	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.4.4",
 		"@types/bun": "^1.3.9",
 		"@types/node": "^22.13.1",
 		"tsup": "^8.3.6",
-		"typescript": "^5.8.2"
+		"typescript": "^5.8.2",
+		"zod": "^4.1.12"
 	}
 }

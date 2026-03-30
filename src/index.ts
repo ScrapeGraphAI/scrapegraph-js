@@ -1,41 +1,9 @@
-export {
-	smartScraper,
-	searchScraper,
-	markdownify,
-	scrape,
-	crawl,
-	agenticScraper,
-	generateSchema,
-	sitemap,
-	getCredits,
-	checkHealth,
-	history,
-} from "./scrapegraphai.js";
-
+export { scrapegraphai } from "./client.js";
+export type { ApiResult } from "./http.js";
 export type {
-	AgenticScraperParams,
-	AgenticScraperResponse,
-	ApiResult,
-	CrawlParams,
-	CrawlPage,
-	CrawlResponse,
-	CreditsResponse,
-	GenerateSchemaParams,
-	GenerateSchemaResponse,
-	HealthResponse,
-	HistoryEntry,
-	HistoryParams,
-	HistoryResponse,
-	MarkdownifyParams,
-	MarkdownifyResponse,
-	ScrapeParams,
-	ScrapeResponse,
-	SearchScraperParams,
-	SearchScraperResponse,
-	SitemapParams,
-	SitemapResponse,
-	SmartScraperParams,
-	SmartScraperResponse,
+	ClientConfig,
+	CrawlOptions,
+	MonitorCreateOptions,
+	RequestOptions,
 } from "./types/index.js";
-
-export { HISTORY_SERVICES } from "./types/index.js";
+export { DEFAULT_BASE_URL, VERSION } from "./types/index.js";

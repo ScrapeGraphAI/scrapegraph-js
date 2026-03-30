@@ -1,26 +1,13 @@
-import {
-	type CreditsResponse,
-	type HealthResponse,
-	type MarkdownifyResponse,
-	type ScrapeResponse,
-	type SearchScraperResponse,
-	type SitemapResponse,
-	type SmartScraperResponse,
-	checkHealth,
-	getCredits,
-	markdownify,
-	scrape,
-	searchScraper,
-	sitemap,
-	smartScraper,
-} from "./src/index.js";
+import { scrapegraphai } from "./src/index.js";
 
 const maybeKey = process.env.SGAI_API_KEY;
 if (!maybeKey) {
 	console.error("Set SGAI_API_KEY env var");
 	process.exit(1);
 }
-const apiKey: string = maybeKey;
+
+const apiKey = maybeKey;
+const sgai = scrapegraphai({ apiKey });
 
 function assert(condition: boolean, msg: string) {
 	if (!condition) {
@@ -35,96 +22,56 @@ function logResult(name: string, data: unknown) {
 }
 
 async function testHealth() {
-	const res = await checkHealth(apiKey);
-	logResult("checkHealth", res);
-	assert(res.status === "success", "health status should be success");
-	const d = res.data as HealthResponse;
-	assert(typeof d.status === "string", "health.status should be string");
+	const res = await fetch("https://api.scrapegraphai.com/api/v1/health");
+	logResult("health", await res.json());
+	assert(res.ok, "health should return 200");
 }
 
 async function testCredits() {
-	const res = await getCredits(apiKey);
-	logResult("getCredits", res);
-	assert(res.status === "success", "credits status should be success");
-	const d = res.data as CreditsResponse;
-	assert(typeof d.remaining_credits === "number", "remaining_credits should be number");
-	assert(typeof d.total_credits_used === "number", "total_credits_used should be number");
-}
-
-async function testSmartScraper() {
-	const res = await smartScraper(apiKey, {
-		user_prompt: "Extract the page title and description",
-		website_url: "https://example.com",
-	});
-	logResult("smartScraper", res);
-	assert(res.status === "success", "smartScraper status should be success");
-	const d = res.data as SmartScraperResponse;
-	assert(typeof d.request_id === "string", "request_id should be string");
-	assert(typeof d.status === "string", "status should be string");
-	assert(typeof d.website_url === "string", "website_url should be string");
-	assert(typeof d.user_prompt === "string", "user_prompt should be string");
-	assert(d.result !== undefined, "result should exist");
-}
-
-async function testSearchScraper() {
-	const res = await searchScraper(apiKey, {
-		user_prompt: "What is the capital of France?",
-	});
-	logResult("searchScraper", res);
-	assert(res.status === "success", "searchScraper status should be success");
-	const d = res.data as SearchScraperResponse;
-	assert(typeof d.request_id === "string", "request_id should be string");
-	assert(typeof d.user_prompt === "string", "user_prompt should be string");
-	assert(Array.isArray(d.reference_urls), "reference_urls should be array");
-	assert(
-		d.result !== undefined || d.markdown_content !== undefined,
-		"result or markdown_content should exist",
-	);
-}
-
-async function testMarkdownify() {
-	const res = await markdownify(apiKey, {
-		website_url: "https://example.com",
-	});
-	logResult("markdownify", res);
-	assert(res.status === "success", "markdownify status should be success");
-	const d = res.data as MarkdownifyResponse;
-	assert(typeof d.request_id === "string", "request_id should be string");
-	assert(typeof d.website_url === "string", "website_url should be string");
-	assert(typeof d.result === "string" || d.result === null, "result should be string or null");
+	const res = await sgai.credits();
+	logResult("credits", res);
+	assert(typeof res._requestId === "string", "credits requestId should be present");
+	assert(typeof res.data === "object" && res.data !== null, "credits data should be an object");
 }
 
 async function testScrape() {
-	const res = await scrape(apiKey, {
-		website_url: "https://example.com",
-	});
+	const res = await sgai.scrape("https://example.com", { format: "markdown" });
 	logResult("scrape", res);
-	assert(res.status === "success", "scrape status should be success");
-	const d = res.data as ScrapeResponse;
-	assert(typeof d.scrape_request_id === "string", "scrape_request_id should be string");
-	assert(typeof d.html === "string", "html should be string");
-	assert(typeof d.status === "string", "status should be string");
+	assert(typeof res._requestId === "string", "scrape requestId should be present");
+	assert(typeof res.data === "object" && res.data !== null, "scrape data should be an object");
 }
 
-async function testSitemap() {
-	const res = await sitemap(apiKey, {
-		website_url: "https://scrapegraphai.com",
+async function testExtract() {
+	const res = await sgai.extract("https://example.com", {
+		prompt: "What is this page about? Return a short description.",
+		schema: { type: "object", properties: { description: { type: "string" } } },
 	});
-	logResult("sitemap", res);
-	assert(res.status === "success", "sitemap status should be success");
-	const d = res.data as SitemapResponse;
-	assert(typeof d.request_id === "string", "request_id should be string");
-	assert(Array.isArray(d.urls), "urls should be array");
+	logResult("extract", res);
+	assert(typeof res._requestId === "string", "extract requestId should be present");
+	assert(typeof res.data === "object" && res.data !== null, "extract data should be an object");
 }
 
-console.log("Running API battle tests...\n");
+async function testSearch() {
+	const res = await sgai.search("What is the capital of France?");
+	logResult("search", res);
+	assert(typeof res._requestId === "string", "search requestId should be present");
+	assert(typeof res.data === "object" && res.data !== null, "search data should be an object");
+}
+
+async function testSchema() {
+	const res = await sgai.schema("A product with name and price");
+	logResult("schema", res);
+	assert(typeof res._requestId === "string", "schema requestId should be present");
+	assert(typeof res.data === "object" && res.data !== null, "schema data should be an object");
+}
+
+console.log("Running SDK v2 integration tests...\n");
 
 await testHealth();
 await testCredits();
-await testSmartScraper();
-await testSearchScraper();
-await testMarkdownify();
 await testScrape();
-await testSitemap();
+await testExtract();
+await testSearch();
+await testSchema();
 
-console.log("\nAll tests passed.");
+console.log("\nAll integration tests passed.");
