@@ -15,7 +15,7 @@ describe("request", () => {
 			url: "https://example.com",
 		});
 		expect(res.data.markdown).toBe("hello");
-		expect(res._requestId).toBe("req-123");
+		expect(res.requestId).toBe("req-123");
 		server.stop();
 	});
 

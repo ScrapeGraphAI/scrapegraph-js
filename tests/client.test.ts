@@ -23,7 +23,7 @@ describe("scrapegraphai", () => {
 		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
 		const res = await sgai.scrape("https://example.com");
 		expect((res.data as any).markdown).toBe("# Hello");
-		expect(res._requestId).toBe("req-1");
+		expect(res.requestId).toBe("req-1");
 		api.stop();
 	});
 

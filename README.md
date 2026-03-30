@@ -23,7 +23,7 @@ const sgai = scrapegraphai({ apiKey: "your-api-key" });
 const result = await sgai.scrape("https://example.com", { format: "markdown" });
 
 console.log(result.data);
-console.log(result._requestId);
+console.log(result.requestId);
 ```
 
 Every method returns:
@@ -31,7 +31,7 @@ Every method returns:
 ```ts
 type ApiResult<T> = {
   data: T;
-  _requestId: string;
+  requestId: string;
 };
 ```
 

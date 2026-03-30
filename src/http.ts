@@ -3,7 +3,7 @@ import { VERSION } from "./types/index.js";
 
 export interface ApiResult<T> {
 	data: T;
-	_requestId: string;
+	requestId: string;
 }
 
 export async function request<T = unknown>(
@@ -11,10 +11,10 @@ export async function request<T = unknown>(
 	url: string,
 	apiKey: string,
 	body?: Record<string, unknown>,
-	opts?: { maxRetries?: number; timeout?: number } & RequestOptions,
+	requestOptions?: { maxRetries?: number; timeout?: number } & RequestOptions,
 ): Promise<ApiResult<T>> {
-	const maxRetries = opts?.maxRetries ?? 2;
-	const timeout = opts?.timeout ?? 30_000;
+	const maxRetries = requestOptions?.maxRetries ?? 2;
+	const timeout = requestOptions?.timeout ?? 30_000;
 
 	let lastError: Error | null = null;
 
@@ -30,7 +30,7 @@ export async function request<T = unknown>(
 				method,
 				headers,
 				body: body ? JSON.stringify(body) : undefined,
-				signal: opts?.signal ?? AbortSignal.timeout(timeout),
+				signal: requestOptions?.signal ?? AbortSignal.timeout(timeout),
 			});
 
 			if ((res.status === 502 || res.status === 503) && attempt < maxRetries) {
@@ -46,7 +46,7 @@ export async function request<T = unknown>(
 			const data = (method === "DELETE" ? null : await res.json()) as T;
 			const requestId = res.headers.get("x-request-id") ?? "";
 
-			return { data, _requestId: requestId };
+			return { data, requestId };
 		} catch (e) {
 			lastError = e instanceof Error ? e : new Error(String(e));
 			if (e instanceof DOMException && e.name === "TimeoutError") throw lastError;
