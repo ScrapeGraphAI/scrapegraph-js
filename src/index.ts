@@ -1,3 +1,9 @@
+console.warn(
+	"[scrapegraph-js] WARNING: This version (1.x) is deprecated and will no longer receive updates. " +
+	"Please upgrade to scrapegraph-js v2 for the latest features, bug fixes, and API v2 support. " +
+	"See the migration guide: https://github.com/ScrapeGraphAI/scrapegraph-js/blob/main/MIGRATION.md",
+);
+
 export {
 	smartScraper,
 	searchScraper,
