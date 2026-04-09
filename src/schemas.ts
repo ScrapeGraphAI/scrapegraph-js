@@ -172,8 +172,6 @@ export const apiExtractRequestBaseSchema = z
 		prompt: apiUserPromptSchema,
 		schema: z.record(z.string(), z.unknown()).optional(),
 		contentType: apiFetchContentTypeSchema.optional(),
-		fetchConfig: apiFetchConfigSchema.optional(),
-		llmConfig: apiLlmConfigSchema.optional(),
 	})
 	.refine((d) => d.url || d.html || d.markdown, {
 		message: "Either url, html, or markdown is required",

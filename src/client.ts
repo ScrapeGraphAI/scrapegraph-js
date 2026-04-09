@@ -40,10 +40,8 @@ export function scrapegraphai(config: ClientConfig) {
 		async extract(url: string, extractOptions: ApiExtractOptions, requestOptions?: RequestOptions) {
 			const body: Record<string, unknown> = { url, prompt: extractOptions.prompt };
 			if (extractOptions.schema) body.schema = toJsonSchema(extractOptions.schema);
-			if (extractOptions.llmConfig) body.llmConfig = extractOptions.llmConfig;
 			if (extractOptions.mode) body.mode = extractOptions.mode;
 			if (extractOptions.contentType) body.contentType = extractOptions.contentType;
-			if (extractOptions.fetchConfig) body.fetchConfig = extractOptions.fetchConfig;
 			return request(
 				"POST",
 				buildUrl("/api/v2/extract"),
