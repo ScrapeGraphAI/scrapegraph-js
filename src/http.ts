@@ -22,6 +22,7 @@ export async function request<T = unknown>(
 		try {
 			const headers: Record<string, string> = {
 				Authorization: `Bearer ${apiKey}`,
+				"SGAI-APIKEY": apiKey,
 				"X-SDK-Version": `js@${VERSION}`,
 			};
 			if (body) headers["Content-Type"] = "application/json";

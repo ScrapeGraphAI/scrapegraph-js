@@ -41,6 +41,7 @@ describe("request", () => {
 		await request("GET", `${server.url}/test`, "my-api-key");
 		expect(capturedHeaders).toBeDefined();
 		expect(capturedHeaders?.get("authorization")).toBe("Bearer my-api-key");
+		expect(capturedHeaders?.get("sgai-apikey")).toBe("my-api-key");
 		expect(capturedHeaders?.get("x-sdk-version")).toContain("js@");
 		server.stop();
 	});

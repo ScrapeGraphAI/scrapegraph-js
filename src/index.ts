@@ -6,6 +6,7 @@ export type {
 	ApiExtractOptions,
 	ApiExtractRequestBase,
 	ApiFetchConfig,
+	ApiFetchMode,
 	ApiHistoryFilterInput,
 	ApiHistoryService,
 	ApiHtmlMode,

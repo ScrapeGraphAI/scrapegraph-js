@@ -3,6 +3,7 @@ import type {
 	apiCrawlRequestSchema,
 	apiExtractRequestBaseSchema,
 	apiFetchConfigSchema,
+	apiFetchModeSchema,
 	apiHistoryFilterSchema,
 	apiHtmlModeSchema,
 	apiLlmConfigSchema,
@@ -18,6 +19,7 @@ export const DEFAULT_BASE_URL = "https://api.scrapegraphai.com";
 export type { ApiModelName } from "../models.js";
 
 export type ApiHtmlMode = z.infer<typeof apiHtmlModeSchema>;
+export type ApiFetchMode = z.infer<typeof apiFetchModeSchema>;
 
 export interface ClientConfig {
 	apiKey: string;

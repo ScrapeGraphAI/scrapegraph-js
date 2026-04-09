@@ -30,7 +30,7 @@ export function scrapegraphai(config: ClientConfig) {
 		async scrape(url: string, scrapeOptions?: ApiScrapeOptions, requestOptions?: RequestOptions) {
 			return request(
 				"POST",
-				buildUrl("/v2/scrape"),
+				buildUrl("/api/v2/scrape"),
 				key,
 				{ url, ...scrapeOptions },
 				mergeRequestOptions(requestOptions),
@@ -46,7 +46,7 @@ export function scrapegraphai(config: ClientConfig) {
 			if (extractOptions.fetchConfig) body.fetchConfig = extractOptions.fetchConfig;
 			return request(
 				"POST",
-				buildUrl("/v2/extract"),
+				buildUrl("/api/v2/extract"),
 				key,
 				body,
 				mergeRequestOptions(requestOptions),
@@ -56,7 +56,7 @@ export function scrapegraphai(config: ClientConfig) {
 		async search(query: string, searchOptions?: ApiSearchOptions, requestOptions?: RequestOptions) {
 			return request(
 				"POST",
-				buildUrl("/v2/search"),
+				buildUrl("/api/v2/search"),
 				key,
 				{ query, ...searchOptions },
 				mergeRequestOptions(requestOptions),
@@ -66,7 +66,7 @@ export function scrapegraphai(config: ClientConfig) {
 		async credits(requestOptions?: RequestOptions) {
 			return request(
 				"GET",
-				buildUrl("/v2/credits"),
+				buildUrl("/api/v2/credits"),
 				key,
 				undefined,
 				mergeRequestOptions(requestOptions),
@@ -81,7 +81,7 @@ export function scrapegraphai(config: ClientConfig) {
 			const query = qs.toString();
 			return request(
 				"GET",
-				buildUrl(`/v2/history${query ? `?${query}` : ""}`),
+				buildUrl(`/api/v2/history${query ? `?${query}` : ""}`),
 				key,
 				undefined,
 				mergeRequestOptions(requestOptions),
@@ -92,7 +92,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async start(url: string, crawlOptions?: ApiCrawlOptions, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl("/v2/crawl"),
+					buildUrl("/api/v2/crawl"),
 					key,
 					{ url, ...crawlOptions },
 					mergeRequestOptions(requestOptions),
@@ -102,7 +102,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async status(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"GET",
-					buildUrl(`/v2/crawl/${id}`),
+					buildUrl(`/api/v2/crawl/${id}`),
 					key,
 					undefined,
 					mergeRequestOptions(requestOptions),
@@ -112,7 +112,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async stop(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl(`/v2/crawl/${id}/stop`),
+					buildUrl(`/api/v2/crawl/${id}/stop`),
 					key,
 					{},
 					mergeRequestOptions(requestOptions),
@@ -122,7 +122,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async resume(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl(`/v2/crawl/${id}/resume`),
+					buildUrl(`/api/v2/crawl/${id}/resume`),
 					key,
 					{},
 					mergeRequestOptions(requestOptions),
@@ -134,7 +134,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async create(monitorCreateInput: ApiMonitorCreateInput, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl("/v2/monitor"),
+					buildUrl("/api/v2/monitor"),
 					key,
 					{ ...monitorCreateInput },
 					mergeRequestOptions(requestOptions),
@@ -144,7 +144,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async list(requestOptions?: RequestOptions) {
 				return request(
 					"GET",
-					buildUrl("/v2/monitor"),
+					buildUrl("/api/v2/monitor"),
 					key,
 					undefined,
 					mergeRequestOptions(requestOptions),
@@ -154,7 +154,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async get(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"GET",
-					buildUrl(`/v2/monitor/${id}`),
+					buildUrl(`/api/v2/monitor/${id}`),
 					key,
 					undefined,
 					mergeRequestOptions(requestOptions),
@@ -164,7 +164,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async pause(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl(`/v2/monitor/${id}/pause`),
+					buildUrl(`/api/v2/monitor/${id}/pause`),
 					key,
 					{},
 					mergeRequestOptions(requestOptions),
@@ -174,7 +174,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async resume(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"POST",
-					buildUrl(`/v2/monitor/${id}/resume`),
+					buildUrl(`/api/v2/monitor/${id}/resume`),
 					key,
 					{},
 					mergeRequestOptions(requestOptions),
@@ -184,7 +184,7 @@ export function scrapegraphai(config: ClientConfig) {
 			async delete(id: string, requestOptions?: RequestOptions) {
 				return request(
 					"DELETE",
-					buildUrl(`/v2/monitor/${id}`),
+					buildUrl(`/api/v2/monitor/${id}`),
 					key,
 					undefined,
 					mergeRequestOptions(requestOptions),

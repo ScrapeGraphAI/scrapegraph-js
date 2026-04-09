@@ -17,7 +17,7 @@ function mockApi(routes: Record<string, (req: Request) => Response | Promise<Res
 describe("scrapegraphai", () => {
 	test("scrape returns markdown + requestId", async () => {
 		const api = mockApi({
-			"/v2/scrape": () =>
+			"/api/v2/scrape": () =>
 				Response.json({ markdown: "# Hello" }, { headers: { "x-request-id": "req-1" } }),
 		});
 		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
@@ -30,7 +30,7 @@ describe("scrapegraphai", () => {
 	test("extract sends prompt + schema", async () => {
 		let body: any;
 		const api = mockApi({
-			"/v2/extract": async (req) => {
+			"/api/v2/extract": async (req) => {
 				body = await req.json();
 				return Response.json({ json: { name: "Test" } }, { headers: { "x-request-id": "req-2" } });
 			},
@@ -48,7 +48,7 @@ describe("scrapegraphai", () => {
 	test("search sends query", async () => {
 		let body: any;
 		const api = mockApi({
-			"/v2/search": async (req) => {
+			"/api/v2/search": async (req) => {
 				body = await req.json();
 				return Response.json(
 					{ results: [{ url: "https://a.com" }] },
@@ -65,7 +65,7 @@ describe("scrapegraphai", () => {
 
 	test("credits returns balance", async () => {
 		const api = mockApi({
-			"/v2/credits": () =>
+			"/api/v2/credits": () =>
 				Response.json(
 					{ remainingCredits: 5000, totalCreditsUsed: 200 },
 					{ headers: { "x-request-id": "req-4" } },
@@ -79,7 +79,7 @@ describe("scrapegraphai", () => {
 
 	test("crawl.start returns job id", async () => {
 		const api = mockApi({
-			"/v2/crawl": () =>
+			"/api/v2/crawl": () =>
 				Response.json(
 					{ id: "crawl-123", status: "running" },
 					{ headers: { "x-request-id": "req-5" } },
@@ -93,7 +93,7 @@ describe("scrapegraphai", () => {
 
 	test("crawl.status returns status", async () => {
 		const api = mockApi({
-			"/v2/crawl/crawl-123": () =>
+			"/api/v2/crawl/crawl-123": () =>
 				Response.json(
 					{ id: "crawl-123", status: "completed", pages: [] },
 					{ headers: { "x-request-id": "req-6" } },
@@ -108,7 +108,7 @@ describe("scrapegraphai", () => {
 	test("crawl.stop sends POST", async () => {
 		let called = false;
 		const api = mockApi({
-			"/v2/crawl/crawl-123/stop": () => {
+			"/api/v2/crawl/crawl-123/stop": () => {
 				called = true;
 				return Response.json({ ok: true }, { headers: { "x-request-id": "req-7" } });
 			},
@@ -122,7 +122,7 @@ describe("scrapegraphai", () => {
 	test("monitor.create sends body", async () => {
 		let body: any;
 		const api = mockApi({
-			"/v2/monitor": async (req) => {
+			"/api/v2/monitor": async (req) => {
 				body = await req.json();
 				return Response.json({ id: "mon-1" }, { headers: { "x-request-id": "req-8" } });
 			},
@@ -141,7 +141,7 @@ describe("scrapegraphai", () => {
 	test("monitor.delete sends DELETE", async () => {
 		let method: string | undefined;
 		const api = mockApi({
-			"/v2/monitor/mon-1": (req) => {
+			"/api/v2/monitor/mon-1": (req) => {
 				method = req.method;
 				return Response.json({}, { headers: { "x-request-id": "req-9" } });
 			},
@@ -149,6 +149,20 @@ describe("scrapegraphai", () => {
 		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
 		await sgai.monitor.delete("mon-1");
 		expect(method).toBe("DELETE");
+		api.stop();
+	});
+
+	test("scrape forwards fetchConfig.mode", async () => {
+		let body: any;
+		const api = mockApi({
+			"/api/v2/scrape": async (req) => {
+				body = await req.json();
+				return Response.json({ markdown: "ok" }, { headers: { "x-request-id": "req-fm" } });
+			},
+		});
+		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
+		await sgai.scrape("https://example.com", { fetchConfig: { mode: "js+stealth" } });
+		expect(body.fetchConfig.mode).toBe("js+stealth");
 		api.stop();
 	});
 
