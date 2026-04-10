@@ -63,6 +63,20 @@ describe("scrapegraphai", () => {
 		api.stop();
 	});
 
+	test("search forwards nationality", async () => {
+		let body: any;
+		const api = mockApi({
+			"/api/v2/search": async (req) => {
+				body = await req.json();
+				return Response.json({ results: [] }, { headers: { "x-request-id": "req-nat" } });
+			},
+		});
+		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
+		await sgai.search("test query", { nationality: "it" });
+		expect(body.nationality).toBe("it");
+		api.stop();
+	});
+
 	test("credits returns balance", async () => {
 		const api = mockApi({
 			"/api/v2/credits": () =>

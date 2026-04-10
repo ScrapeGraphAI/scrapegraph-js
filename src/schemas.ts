@@ -2,13 +2,7 @@ import { z } from "zod/v4";
 import { MODEL_NAMES } from "./models.js";
 import * as url from "./url.js";
 
-export const apiServiceEnumSchema = z.enum([
-	"scrape",
-	"extract",
-	"search",
-	"monitor",
-	"crawl",
-]);
+export const apiServiceEnumSchema = z.enum(["scrape", "extract", "search", "monitor", "crawl"]);
 export const apiStatusEnumSchema = z.enum(["completed", "failed"]);
 export const apiHtmlModeSchema = z.enum(["normal", "reader", "prune"]);
 export const apiFetchContentTypeSchema = z.enum([
@@ -188,6 +182,11 @@ export const apiSearchRequestSchema = z
 		schema: z.record(z.string(), z.unknown()).optional(),
 		llmConfig: apiLlmConfigSchema.optional(),
 		locationGeoCode: z.string().max(10).optional(),
+		nationality: z
+			.string()
+			.length(2)
+			.transform((v) => v.toLowerCase())
+			.optional(),
 		timeRange: z
 			.enum(["past_hour", "past_24_hours", "past_week", "past_month", "past_year"])
 			.optional(),

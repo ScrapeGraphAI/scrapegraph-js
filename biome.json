@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
 	"assist": {
 		"actions": {
 			"source": {
@@ -31,6 +31,6 @@
 		}
 	],
 	"files": {
-		"includes": ["**", "!dist", "!node_modules", "!bun.lock"]
+		"includes": ["**", "!dist", "!node_modules", "!bun.lock", "!.claude"]
 	}
 }
