@@ -83,18 +83,6 @@ export const apiFetchConfigSchema = z.object({
 		.default(false),
 });
 
-export const apiChunkerSchema = z.object({
-	size: z.union([z.number().int().min(2048), z.literal("dynamic")]).optional(),
-	overlap: z.number().int().min(0).max(512).optional(),
-});
-
-export const apiLlmConfigSchema = z.object({
-	model: z.enum(MODEL_NAMES).optional(),
-	temperature: z.number().min(0).max(1).default(0),
-	maxTokens: z.number().int().min(1).max(16384).default(4096),
-	chunker: apiChunkerSchema.optional(),
-});
-
 export const apiHistoryFilterSchema = z.object({
 	page: z.coerce.number().int().positive().default(1),
 	limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -134,13 +122,10 @@ export const apiScreenshotConfigSchema = z.object({
 export const apiScrapeJsonConfigSchema = z.object({
 	prompt: apiUserPromptSchema,
 	schema: z.record(z.string(), z.unknown()).optional(),
-	llmConfig: apiLlmConfigSchema.optional(),
 	mode: apiHtmlModeSchema.default("normal"),
 });
 
-export const apiScrapeSummaryConfigSchema = z.object({
-	llmConfig: apiLlmConfigSchema.optional(),
-});
+export const apiScrapeSummaryConfigSchema = z.object({});
 
 const scrapeBase = {
 	url: apiUrlSchema,

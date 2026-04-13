@@ -16,11 +16,26 @@ function normalizeSchema(schema: unknown) {
 	return schema ? toJsonSchema(schema) : undefined;
 }
 
+const ALLOWED_FORMAT_KEYS = {
+	markdown: new Set(["type", "mode"]),
+	html: new Set(["type", "mode"]),
+	screenshot: new Set(["type", "fullPage", "width", "height", "quality"]),
+	links: new Set(["type"]),
+	images: new Set(["type"]),
+	summary: new Set(["type"]),
+	branding: new Set(["type"]),
+	json: new Set(["type", "prompt", "schema", "mode"]),
+} as const;
+
 function normalizeScrapeFormatEntry(format: ApiScrapeFormatEntry): ApiScrapeFormatEntry {
-	if (format.type !== "json" || !format.schema) return format;
+	const allowedKeys = ALLOWED_FORMAT_KEYS[format.type];
+	const normalized = Object.fromEntries(
+		Object.entries(format).filter(([key]) => allowedKeys.has(key)),
+	) as ApiScrapeFormatEntry;
+	if (normalized.type !== "json" || !normalized.schema) return normalized;
 	return {
-		...format,
-		schema: normalizeSchema(format.schema),
+		...normalized,
+		schema: normalizeSchema(normalized.schema),
 	};
 }
 
@@ -146,7 +161,6 @@ export function buildMonitorBody(monitorCreateInput: ApiMonitorCreateInput) {
 				type: "json" as const,
 				prompt: legacyMonitorInput.prompt,
 				schema: normalizeSchema(legacyMonitorInput.schema),
-				llmConfig: legacyMonitorInput.llmConfig,
 				mode: "normal" as const,
 			},
 		],

@@ -12,7 +12,6 @@ export type {
 	ApiHistoryFilterInput,
 	ApiHistoryService,
 	ApiHtmlMode,
-	ApiLlmConfig,
 	ApiModelName,
 	ApiMonitorCreateInput,
 	ApiMonitorCreateRequest,

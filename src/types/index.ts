@@ -8,7 +8,6 @@ import type {
 	apiHistoryFilterSchema,
 	apiHtmlConfigSchema,
 	apiHtmlModeSchema,
-	apiLlmConfigSchema,
 	apiMarkdownConfigSchema,
 	apiMonitorCreateSchema,
 	apiMonitorUpdateSchema,
@@ -42,7 +41,6 @@ export interface RequestOptions {
 }
 
 export type ApiFetchConfig = z.infer<typeof apiFetchConfigSchema>;
-export type ApiLlmConfig = z.infer<typeof apiLlmConfigSchema>;
 export type ApiScrapeFormat = z.infer<typeof apiScrapeFormatSchema>;
 export type ApiScrapeFormatEntry = z.infer<typeof apiScrapeFormatEntrySchema>;
 export type ApiScrapeRequest = z.infer<typeof apiScrapeRequestSchema>;
@@ -78,7 +76,6 @@ export type LegacyApiMonitorCreateInput = {
 	webhookUrl?: string;
 	interval: string;
 	fetchConfig?: ApiFetchConfig;
-	llmConfig?: ApiLlmConfig;
 };
 export type ApiMonitorCreateInput = ApiMonitorCreateRequest | LegacyApiMonitorCreateInput;
 export type ApiCrawlOptions = Partial<Omit<ApiCrawlRequest, "url">> & {

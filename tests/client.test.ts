@@ -295,7 +295,6 @@ describe("scrapegraphai", () => {
 						properties: { price: { type: "number" } },
 						required: ["price"],
 					},
-					llmConfig: undefined,
 					mode: "normal",
 				},
 			],
