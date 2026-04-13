@@ -6,7 +6,7 @@ export interface ApiResult<T> {
 	requestId: string;
 }
 
-export async function request<T = unknown>(
+export default async function request<T = unknown>(
 	method: "GET" | "POST" | "DELETE",
 	url: string,
 	apiKey: string,
@@ -51,7 +51,6 @@ export async function request<T = unknown>(
 		} catch (e) {
 			lastError = e instanceof Error ? e : new Error(String(e));
 			if (e instanceof DOMException && e.name === "TimeoutError") throw lastError;
-			// [NOTE] @Claude retry on network errors (fetch failed, connection refused)
 			if (e instanceof TypeError && attempt < maxRetries) {
 				await sleep(500 * 2 ** attempt);
 				continue;

@@ -101,7 +101,20 @@ export const apiHistoryFilterSchema = z.object({
 	service: apiServiceEnumSchema.optional(),
 });
 
-export const apiScrapeFormatSchema = z.enum(["markdown", "html", "screenshot", "branding"]);
+export const apiScrapeContentFormatSchema = z.enum([
+	"markdown",
+	"html",
+	"links",
+	"images",
+	"summary",
+	"json",
+	"branding",
+]);
+export const apiScrapeCaptureFormatSchema = z.enum(["screenshot"]);
+export const apiScrapeFormatSchema = z.enum([
+	...apiScrapeContentFormatSchema.options,
+	...apiScrapeCaptureFormatSchema.options,
+]);
 
 export const apiMarkdownConfigSchema = z.object({
 	mode: apiHtmlModeSchema.default("normal"),
@@ -118,44 +131,76 @@ export const apiScreenshotConfigSchema = z.object({
 	quality: z.number().int().min(1).max(100).default(80),
 });
 
+export const apiScrapeJsonConfigSchema = z.object({
+	prompt: apiUserPromptSchema,
+	schema: z.record(z.string(), z.unknown()).optional(),
+	llmConfig: apiLlmConfigSchema.optional(),
+	mode: apiHtmlModeSchema.default("normal"),
+});
+
+export const apiScrapeSummaryConfigSchema = z.object({
+	llmConfig: apiLlmConfigSchema.optional(),
+});
+
 const scrapeBase = {
 	url: apiUrlSchema,
 	contentType: apiFetchContentTypeSchema.optional(),
 	fetchConfig: apiFetchConfigSchema.optional(),
 };
 
-const apiScrapeDiscriminatedSchema = z.discriminatedUnion("format", [
-	z.object({
-		...scrapeBase,
-		format: z.literal("markdown"),
-		markdown: apiMarkdownConfigSchema.default({ mode: "normal" }),
-	}),
-	z.object({
-		...scrapeBase,
-		format: z.literal("html"),
-		html: apiHtmlConfigSchema.default({ mode: "normal" }),
-	}),
-	z.object({
-		...scrapeBase,
-		format: z.literal("screenshot"),
-		screenshot: apiScreenshotConfigSchema.default({
-			fullPage: false,
-			width: 1440,
-			height: 900,
-			quality: 80,
-		}),
-	}),
-	z.object({
-		...scrapeBase,
-		format: z.literal("branding"),
-	}),
+export const apiScrapeMarkdownFormatSchema = apiMarkdownConfigSchema.extend({
+	type: z.literal("markdown"),
+});
+
+export const apiScrapeHtmlFormatSchema = apiHtmlConfigSchema.extend({
+	type: z.literal("html"),
+});
+
+export const apiScrapeScreenshotFormatSchema = apiScreenshotConfigSchema.extend({
+	type: z.literal("screenshot"),
+});
+
+export const apiScrapeJsonFormatSchema = apiScrapeJsonConfigSchema.extend({
+	type: z.literal("json"),
+});
+
+export const apiScrapeLinksFormatSchema = z.object({
+	type: z.literal("links"),
+});
+
+export const apiScrapeImagesFormatSchema = z.object({
+	type: z.literal("images"),
+});
+
+export const apiScrapeSummaryFormatSchema = apiScrapeSummaryConfigSchema.extend({
+	type: z.literal("summary"),
+});
+
+export const apiScrapeBrandingFormatSchema = z.object({
+	type: z.literal("branding"),
+});
+
+export const apiScrapeFormatEntrySchema = z.discriminatedUnion("type", [
+	apiScrapeMarkdownFormatSchema,
+	apiScrapeHtmlFormatSchema,
+	apiScrapeScreenshotFormatSchema,
+	apiScrapeJsonFormatSchema,
+	apiScrapeLinksFormatSchema,
+	apiScrapeImagesFormatSchema,
+	apiScrapeSummaryFormatSchema,
+	apiScrapeBrandingFormatSchema,
 ]);
 
-// [NOTE] @Claude preprocess injects format:"markdown" when omitted so { url } works as default
-export const apiScrapeRequestSchema = z.preprocess((val) => {
-	if (typeof val === "object" && val && !("format" in val)) return { ...val, format: "markdown" };
-	return val;
-}, apiScrapeDiscriminatedSchema);
+export const apiScrapeRequestSchema = z.object({
+	...scrapeBase,
+	formats: z
+		.array(apiScrapeFormatEntrySchema)
+		.min(1)
+		.refine((formats) => new Set(formats.map((format) => format.type)).size === formats.length, {
+			message: "duplicate format types not allowed",
+		})
+		.default([{ type: "markdown", mode: "normal" }]),
+});
 
 export const apiExtractRequestBaseSchema = z
 	.object({
@@ -166,10 +211,17 @@ export const apiExtractRequestBaseSchema = z
 		prompt: apiUserPromptSchema,
 		schema: z.record(z.string(), z.unknown()).optional(),
 		contentType: apiFetchContentTypeSchema.optional(),
+		fetchConfig: apiFetchConfigSchema.optional(),
 	})
 	.refine((d) => d.url || d.html || d.markdown, {
 		message: "Either url, html, or markdown is required",
 	});
+
+export const apiGenerateSchemaRequestSchema = z.object({
+	prompt: apiUserPromptSchema,
+	existingSchema: z.record(z.string(), z.unknown()).optional(),
+	model: z.enum(MODEL_NAMES).optional(),
+});
 
 export const apiSearchRequestSchema = z
 	.object({
@@ -180,13 +232,7 @@ export const apiSearchRequestSchema = z
 		fetchConfig: apiFetchConfigSchema.optional(),
 		prompt: apiUserPromptSchema.optional(),
 		schema: z.record(z.string(), z.unknown()).optional(),
-		llmConfig: apiLlmConfigSchema.optional(),
 		locationGeoCode: z.string().max(10).optional(),
-		nationality: z
-			.string()
-			.length(2)
-			.transform((v) => v.toLowerCase())
-			.optional(),
 		timeRange: z
 			.enum(["past_hour", "past_24_hours", "past_week", "past_month", "past_year"])
 			.optional(),
@@ -198,23 +244,31 @@ export const apiSearchRequestSchema = z
 export const apiMonitorCreateSchema = z.object({
 	url: apiUrlSchema,
 	name: z.string().max(200).optional(),
-	prompt: apiUserPromptSchema,
-	schema: z.record(z.string(), z.unknown()).optional(),
+	formats: z
+		.array(apiScrapeFormatEntrySchema)
+		.min(1)
+		.refine((formats) => new Set(formats.map((format) => format.type)).size === formats.length, {
+			message: "duplicate format types not allowed",
+		})
+		.default([{ type: "markdown", mode: "normal" }]),
 	webhookUrl: apiUrlSchema.optional(),
 	interval: z.string().min(1).max(100),
 	fetchConfig: apiFetchConfigSchema.optional(),
-	llmConfig: apiLlmConfigSchema.optional(),
 });
 
 export const apiMonitorUpdateSchema = z
 	.object({
 		name: z.string().max(200).optional(),
-		prompt: apiUserPromptSchema.optional(),
-		schema: z.record(z.string(), z.unknown()).optional(),
+		formats: z
+			.array(apiScrapeFormatEntrySchema)
+			.min(1)
+			.refine((formats) => new Set(formats.map((format) => format.type)).size === formats.length, {
+				message: "duplicate format types not allowed",
+			})
+			.optional(),
 		webhookUrl: apiUrlSchema.nullable().optional(),
 		interval: z.string().min(1).max(100).optional(),
 		fetchConfig: apiFetchConfigSchema.optional(),
-		llmConfig: apiLlmConfigSchema.optional(),
 	})
 	.partial();
 
@@ -230,9 +284,16 @@ export const apiCrawlPageStatusSchema = z.enum(["completed", "failed", "skipped"
 
 export const apiCrawlRequestSchema = z.object({
 	url: apiUrlSchema,
-	maxDepth: z.coerce.number().int().min(0).max(10).default(2),
-	maxPages: z.coerce.number().int().min(1).max(500).default(50),
-	maxLinksPerPage: z.coerce.number().int().min(1).max(50).default(10),
+	formats: z
+		.array(apiScrapeFormatEntrySchema)
+		.min(1)
+		.refine((formats) => new Set(formats.map((format) => format.type)).size === formats.length, {
+			message: "duplicate format types not allowed",
+		})
+		.default([{ type: "markdown", mode: "normal" }]),
+	maxDepth: z.coerce.number().int().min(0).default(2),
+	maxPages: z.coerce.number().int().min(1).max(1000).default(50),
+	maxLinksPerPage: z.coerce.number().int().min(1).default(10),
 	allowExternal: z.boolean().default(false),
 	includePatterns: z.array(z.string()).optional(),
 	excludePatterns: z.array(z.string()).optional(),

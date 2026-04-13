@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { request } from "../src/http";
+import request from "../src/http";
 
 function mockServer(handler: (req: Request) => Response | Promise<Response>) {
 	const server = Bun.serve({ port: 0, fetch: handler });

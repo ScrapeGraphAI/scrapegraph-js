@@ -1,7 +1,17 @@
-import { request } from "./http.js";
+import request from "./http.js";
+import {
+	buildCrawlBody,
+	buildExtractBody,
+	buildHistoryQuery,
+	buildMonitorBody,
+	buildSchemaBody,
+	buildScrapeBody,
+	buildSearchBody,
+} from "./lib/utils.js";
 import type {
 	ApiCrawlOptions,
 	ApiExtractOptions,
+	ApiGenerateSchemaOptions,
 	ApiHistoryFilterInput,
 	ApiMonitorCreateInput,
 	ApiScrapeOptions,
@@ -10,7 +20,6 @@ import type {
 	RequestOptions,
 } from "./types/index.js";
 import { DEFAULT_BASE_URL } from "./types/index.js";
-import { toJsonSchema } from "./zod.js";
 
 /** Create a ScrapeGraphAI client. All methods return `{ data, requestId }`. */
 export function scrapegraphai(config: ClientConfig) {
@@ -32,21 +41,21 @@ export function scrapegraphai(config: ClientConfig) {
 				"POST",
 				buildUrl("/api/v2/scrape"),
 				key,
-				{ url, ...scrapeOptions },
+				buildScrapeBody(url, scrapeOptions),
 				mergeRequestOptions(requestOptions),
 			);
 		},
 
-		async extract(url: string, extractOptions: ApiExtractOptions, requestOptions?: RequestOptions) {
-			const body: Record<string, unknown> = { url, prompt: extractOptions.prompt };
-			if (extractOptions.schema) body.schema = toJsonSchema(extractOptions.schema);
-			if (extractOptions.mode) body.mode = extractOptions.mode;
-			if (extractOptions.contentType) body.contentType = extractOptions.contentType;
+		async extract(
+			url: string | undefined,
+			extractOptions: ApiExtractOptions,
+			requestOptions?: RequestOptions,
+		) {
 			return request(
 				"POST",
 				buildUrl("/api/v2/extract"),
 				key,
-				body,
+				buildExtractBody(url, extractOptions),
 				mergeRequestOptions(requestOptions),
 			);
 		},
@@ -56,7 +65,32 @@ export function scrapegraphai(config: ClientConfig) {
 				"POST",
 				buildUrl("/api/v2/search"),
 				key,
-				{ query, ...searchOptions },
+				buildSearchBody(query, searchOptions),
+				mergeRequestOptions(requestOptions),
+			);
+		},
+
+		async schema(
+			prompt: string,
+			schemaOptions?: ApiGenerateSchemaOptions,
+			requestOptions?: RequestOptions,
+		) {
+			return request(
+				"POST",
+				buildUrl("/api/v2/schema"),
+				key,
+				buildSchemaBody(prompt, schemaOptions),
+				mergeRequestOptions(requestOptions),
+			);
+		},
+
+		async validate(email: string, requestOptions?: RequestOptions) {
+			const query = new URLSearchParams({ email }).toString();
+			return request(
+				"GET",
+				buildUrl(`/api/v2/validate?${query}`),
+				key,
+				undefined,
 				mergeRequestOptions(requestOptions),
 			);
 		},
@@ -72,11 +106,7 @@ export function scrapegraphai(config: ClientConfig) {
 		},
 
 		async history(historyFilter?: ApiHistoryFilterInput, requestOptions?: RequestOptions) {
-			const qs = new URLSearchParams();
-			if (historyFilter?.page != null) qs.set("page", String(historyFilter.page));
-			if (historyFilter?.limit != null) qs.set("limit", String(historyFilter.limit));
-			if (historyFilter?.service) qs.set("service", historyFilter.service);
-			const query = qs.toString();
+			const query = buildHistoryQuery(historyFilter);
 			return request(
 				"GET",
 				buildUrl(`/api/v2/history${query ? `?${query}` : ""}`),
@@ -92,7 +122,7 @@ export function scrapegraphai(config: ClientConfig) {
 					"POST",
 					buildUrl("/api/v2/crawl"),
 					key,
-					{ url, ...crawlOptions },
+					buildCrawlBody(url, crawlOptions),
 					mergeRequestOptions(requestOptions),
 				);
 			},
@@ -134,7 +164,7 @@ export function scrapegraphai(config: ClientConfig) {
 					"POST",
 					buildUrl("/api/v2/monitor"),
 					key,
-					{ ...monitorCreateInput },
+					buildMonitorBody(monitorCreateInput),
 					mergeRequestOptions(requestOptions),
 				);
 			},
