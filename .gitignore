@@ -5,4 +5,5 @@ bun.lock
 *.tsbuildinfo
 .env
 doc/
-.DS_Store
+.claude/
+CLAUDE.md
