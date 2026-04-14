@@ -148,7 +148,7 @@ describe("scrapegraphai", () => {
 			numResults: 1,
 			prompt: "Find the title",
 			schema: z.object({ title: z.string() }),
-			locationGeoCode: "it",
+			country: "it",
 			timeRange: "past_week",
 		});
 		expect(body).toEqual({

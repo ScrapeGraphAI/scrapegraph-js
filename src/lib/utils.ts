@@ -119,7 +119,9 @@ export function buildExtractBody(url: string | undefined, extractOptions: ApiExt
 }
 
 export function buildSearchBody(query: string, searchOptions?: ApiSearchOptions) {
-	const body: Record<string, unknown> = { query, ...searchOptions };
+	const { country, ...rest } = searchOptions ?? {};
+	const body: Record<string, unknown> = { query, ...rest };
+	if (country) body.locationGeoCode = country;
 	if (searchOptions?.schema) body.schema = toJsonSchema(searchOptions.schema);
 	return body;
 }

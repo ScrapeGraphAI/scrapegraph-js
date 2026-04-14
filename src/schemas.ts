@@ -219,7 +219,7 @@ export const apiSearchRequestSchema = z
 		fetchConfig: apiFetchConfigSchema.optional(),
 		prompt: apiUserPromptSchema.optional(),
 		schema: z.record(z.string(), z.unknown()).optional(),
-		locationGeoCode: z.string().max(10).optional(),
+		country: z.string().max(10).optional(),
 		timeRange: z
 			.enum(["past_hour", "past_24_hours", "past_week", "past_month", "past_year"])
 			.optional(),
