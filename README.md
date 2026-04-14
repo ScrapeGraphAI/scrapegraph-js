@@ -3,8 +3,8 @@
 [![npm version](https://badge.fury.io/js/scrapegraph-js.svg)](https://badge.fury.io/js/scrapegraph-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/VinciGit00/Scrapegraph-ai/main/docs/assets/api-banner.png" alt="ScrapeGraph API Banner" style="width: 70%;">
+<p align="center">
+  <img src="media/banner.png" alt="ScrapeGraph JS SDK" style="width: 100%;">
 </p>
 
 Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com) v2.
