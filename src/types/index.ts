@@ -1,228 +1,405 @@
-export type SmartScraperParams = {
-	website_url?: string;
-	website_html?: string;
-	website_markdown?: string;
-	user_prompt: string;
-	output_schema?: Record<string, unknown>;
-	number_of_scrolls?: number;
-	total_pages?: number;
-	stealth?: boolean;
-	cookies?: Record<string, string>;
-	headers?: Record<string, string>;
-	plain_text?: boolean;
-	webhook_url?: string;
-	mock?: boolean;
-	steps?: string[];
-	wait_ms?: number;
-	country_code?: string;
-};
+import type { z } from "zod";
+import type {
+	apiCrawlRequestSchema,
+	apiExtractRequestBaseSchema,
+	apiFetchConfigSchema,
+	apiFetchContentTypeSchema,
+	apiGenerateSchemaRequestSchema,
+	apiHistoryFilterSchema,
+	apiHtmlModeSchema,
+	apiMonitorCreateSchema,
+	apiMonitorUpdateSchema,
+	apiScrapeFormatEntrySchema,
+	apiScrapeRequestSchema,
+	apiSearchRequestSchema,
+} from "../schemas.js";
 
-export type SearchScraperParams = {
-	user_prompt: string;
-	num_results?: number;
-	extraction_mode?: boolean;
-	output_schema?: Record<string, unknown>;
-	stealth?: boolean;
-	headers?: Record<string, string>;
-	webhook_url?: string;
-	mock?: boolean;
-	time_range?: "past_hour" | "past_24_hours" | "past_week" | "past_month" | "past_year";
-	location_geo_code?: string;
-};
+export type ApiFetchConfig = z.infer<typeof apiFetchConfigSchema>;
+export type ApiFetchContentType = z.infer<typeof apiFetchContentTypeSchema>;
+export type ApiHtmlMode = z.infer<typeof apiHtmlModeSchema>;
+export type ApiScrapeFormatEntry = z.infer<typeof apiScrapeFormatEntrySchema>;
 
-export type MarkdownifyParams = {
-	website_url: string;
-	stealth?: boolean;
-	headers?: Record<string, string>;
-	webhook_url?: string;
-	mock?: boolean;
-	wait_ms?: number;
-	country_code?: string;
-};
+export type ApiScrapeRequest = z.infer<typeof apiScrapeRequestSchema>;
+export type ApiExtractRequest = z.infer<typeof apiExtractRequestBaseSchema>;
+export type ApiGenerateSchemaRequest = z.infer<typeof apiGenerateSchemaRequestSchema>;
+export type ApiSearchRequest = z.infer<typeof apiSearchRequestSchema>;
+export type ApiCrawlRequest = z.infer<typeof apiCrawlRequestSchema>;
+export type ApiMonitorCreateInput = z.infer<typeof apiMonitorCreateSchema>;
+export type ApiMonitorUpdateInput = z.infer<typeof apiMonitorUpdateSchema>;
+export type ApiHistoryFilter = z.infer<typeof apiHistoryFilterSchema>;
 
-type CrawlBase = {
+export type ApiScrapeFormat =
+	| "markdown"
+	| "html"
+	| "links"
+	| "images"
+	| "summary"
+	| "json"
+	| "branding"
+	| "screenshot";
+
+export interface ApiTokenUsage {
+	promptTokens: number;
+	completionTokens: number;
+}
+
+export interface ApiChunkerMetadata {
+	chunks: { size: number }[];
+}
+
+export interface ApiFetchWarning {
+	reason: "too_short" | "empty" | "bot_blocked" | "spa_shell" | "soft_404";
+	provider?: string;
+}
+
+export interface ScrapeMetadata {
+	provider?: string;
+	contentType: string;
+	elapsedMs?: number;
+	warnings?: ApiFetchWarning[];
+	ocr?: {
+		model: string;
+		pagesProcessed: number;
+		pages: ContentPageMetadata[];
+	};
+}
+
+export interface ContentPageMetadata {
+	index: number;
+	images: Array<{
+		id: string;
+		topLeftX: number;
+		topLeftY: number;
+		bottomRightX: number;
+		bottomRightY: number;
+	}>;
+	tables: Array<{ id: string; content: string; format: string }>;
+	hyperlinks: string[];
+	dimensions: { dpi: number; height: number; width: number };
+}
+
+export interface ApiBrandingColors {
+	primary: string;
+	accent: string;
+	background: string;
+	textPrimary: string;
+	link: string;
+}
+
+export interface ApiBrandingFontEntry {
+	family: string;
+	fallback: string;
+}
+
+export interface ApiBrandingTypography {
+	primary: ApiBrandingFontEntry;
+	heading: ApiBrandingFontEntry;
+	mono: ApiBrandingFontEntry;
+	sizes: { h1: string; h2: string; body: string };
+}
+
+export interface ApiBrandingImages {
+	logo: string;
+	favicon: string;
+	ogImage: string;
+}
+
+export interface ApiBrandingPersonality {
+	tone: string;
+	energy: "high" | "medium" | "low";
+	targetAudience: string;
+}
+
+export interface ApiBranding {
+	colorScheme: "light" | "dark";
+	colors: ApiBrandingColors;
+	typography: ApiBrandingTypography;
+	images: ApiBrandingImages;
+	spacing: { baseUnit: number; borderRadius: string };
+	frameworkHints: string[];
+	personality: ApiBrandingPersonality;
+	confidence: number;
+}
+
+export interface ApiBrandingMetadata {
+	title: string;
+	description: string;
+	favicon: string;
+	language: string;
+	themeColor: string;
+	ogTitle: string;
+	ogDescription: string;
+	ogImage: string;
+	ogUrl: string;
+}
+
+export interface ApiScrapeScreenshotData {
 	url: string;
-	max_pages?: number;
-	depth?: number;
-	rules?: Record<string, unknown>;
-	sitemap?: boolean;
-	stealth?: boolean;
-	webhook_url?: string;
-	cache_website?: boolean;
-	breadth?: number;
-	same_domain_only?: boolean;
-	batch_size?: number;
-	wait_ms?: number;
-	headers?: Record<string, string>;
-	number_of_scrolls?: number;
-	website_html?: string;
-};
+	width: number;
+	height: number;
+}
 
-type CrawlExtraction = CrawlBase & {
-	extraction_mode?: true;
-	prompt: string;
-	schema?: Record<string, unknown>;
-};
+export interface ApiScrapeFormatError {
+	code: string;
+	error: string;
+}
 
-type CrawlMarkdown = CrawlBase & {
-	extraction_mode: false;
-	prompt?: never;
-	schema?: never;
-};
+export interface ApiScrapeFormatResponseMap {
+	markdown: string[];
+	html: string[];
+	links: string[];
+	images: string[];
+	summary: string;
+	json: Record<string, unknown>;
+	branding: ApiBranding;
+	screenshot: ApiScrapeScreenshotData;
+}
 
-export type CrawlParams = CrawlExtraction | CrawlMarkdown;
+export type ApiImageContentType = Extract<ApiFetchContentType, `image/${string}`>;
 
-export type GenerateSchemaParams = {
-	user_prompt: string;
-	existing_schema?: Record<string, unknown>;
-};
+export interface ApiScrapeFormatMetadataMap {
+	markdown: Record<string, never>;
+	html: Record<string, never>;
+	links: { count: number };
+	images: { count: number };
+	summary: { chunker?: ApiChunkerMetadata };
+	json: { chunker: ApiChunkerMetadata; raw?: string | null };
+	branding: { branding: ApiBrandingMetadata };
+	screenshot: { contentType: ApiImageContentType; provider?: string };
+}
 
-export type SitemapParams = {
-	website_url: string;
-	headers?: Record<string, string>;
-	mock?: boolean;
-	stealth?: boolean;
-};
+export type ApiScrapeResultMap = Partial<{
+	[K in ApiScrapeFormat]: {
+		data: ApiScrapeFormatResponseMap[K];
+		metadata?: ApiScrapeFormatMetadataMap[K];
+	};
+}>;
 
-export type ScrapeParams = {
-	website_url: string;
-	stealth?: boolean;
-	branding?: boolean;
-	country_code?: string;
-	wait_ms?: number;
-};
+export interface ApiScrapeResponse {
+	results: ApiScrapeResultMap;
+	metadata: ScrapeMetadata;
+	errors?: Partial<{ [K in ApiScrapeFormat]: ApiScrapeFormatError }>;
+}
 
-export type AgenticScraperParams = {
+export interface ApiExtractResponse {
+	raw: string | null;
+	json: Record<string, unknown> | null;
+	usage: ApiTokenUsage;
+	metadata: {
+		chunker: ApiChunkerMetadata;
+		fetch?: { provider?: string };
+	};
+}
+
+export interface ApiGenerateSchemaResponse {
+	refinedPrompt: string;
+	schema: Record<string, unknown>;
+	usage: ApiTokenUsage;
+}
+
+export interface ApiSearchResult {
 	url: string;
-	steps: string[];
-	user_prompt?: string;
-	output_schema?: Record<string, unknown>;
-	ai_extraction?: boolean;
-	use_session?: boolean;
-};
+	title: string;
+	content: string;
+	provider?: string;
+}
 
-export const HISTORY_SERVICES = [
-	"markdownify",
-	"smartscraper",
-	"searchscraper",
-	"scrape",
-	"crawl",
-	"agentic-scraper",
-	"sitemap",
-] as const;
+export interface ApiSearchMetadata {
+	search: { provider?: string };
+	pages: { requested: number; scraped: number };
+	chunker?: ApiChunkerMetadata;
+}
 
-export type HistoryParams = {
-	service: (typeof HISTORY_SERVICES)[number];
-	page?: number;
-	page_size?: number;
-};
+export interface ApiSearchResponse {
+	results: ApiSearchResult[];
+	json?: Record<string, unknown> | null;
+	raw?: string | null;
+	usage?: ApiTokenUsage;
+	metadata: ApiSearchMetadata;
+}
 
-export type ApiResult<T> = {
+export type ApiCrawlStatus = "running" | "completed" | "failed" | "cancelled" | "paused";
+export type ApiCrawlPageStatus = "completed" | "failed" | "skipped";
+
+export interface ApiCrawlPage {
+	url: string;
+	status: ApiCrawlPageStatus;
+	depth: number;
+	parentUrl: string | null;
+	links: string[];
+	scrapeRefId: string;
+	title: string;
+	contentType: string;
+	screenshotUrl?: string;
+	reason?: string;
+	error?: string;
+}
+
+export interface ApiCrawlResult {
+	status: ApiCrawlStatus;
+	reason?: string;
+	total: number;
+	finished: number;
+	pages: ApiCrawlPage[];
+}
+
+export interface ApiCrawlResponse extends ApiCrawlResult {
+	id: string;
+}
+
+export interface TextChange {
+	type: "added" | "removed";
+	line: number;
+	content: string;
+}
+
+export interface JsonChange {
+	path: string;
+	old: unknown;
+	new: unknown;
+}
+
+export interface SetChange {
+	added: string[];
+	removed: string[];
+}
+
+export interface ImageChange {
+	size: number;
+	changed: number;
+	mask?: string;
+}
+
+export interface ApiMonitorDiffs {
+	markdown?: TextChange[];
+	html?: TextChange[];
+	json?: JsonChange[];
+	screenshot?: ImageChange;
+	links?: SetChange;
+	images?: SetChange;
+	summary?: TextChange[];
+	branding?: JsonChange[];
+}
+
+export type ApiMonitorRefs = Partial<Record<ApiScrapeFormat, string>>;
+
+export interface ApiWebhookStatus {
+	sentAt: string;
+	statusCode: number | null;
+	error?: string;
+}
+
+export interface ApiMonitorResult {
+	changed: boolean;
+	diffs: ApiMonitorDiffs;
+	refs: ApiMonitorRefs;
+	webhookStatus?: ApiWebhookStatus;
+}
+
+export interface ApiMonitorResponse {
+	cronId: string;
+	scheduleId: string;
+	interval: string;
+	status: "active" | "paused";
+	config: ApiMonitorCreateInput;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export type ApiHistoryService = "scrape" | "extract" | "schema" | "search" | "monitor" | "crawl";
+export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused";
+
+interface ApiHistoryBase {
+	id: string;
+	status: ApiHistoryStatus;
+	error: unknown;
+	elapsedMs: number;
+	createdAt: string;
+	requestParentId: string | null;
+}
+
+export interface ApiScrapeHistoryEntry extends ApiHistoryBase {
+	service: "scrape";
+	params: ApiScrapeRequest;
+	result: ApiScrapeResponse;
+}
+
+export interface ApiExtractHistoryEntry extends ApiHistoryBase {
+	service: "extract";
+	params: ApiExtractRequest;
+	result: ApiExtractResponse;
+}
+
+export interface ApiSchemaHistoryEntry extends ApiHistoryBase {
+	service: "schema";
+	params: ApiGenerateSchemaRequest;
+	result: ApiGenerateSchemaResponse;
+}
+
+export interface ApiSearchHistoryEntry extends ApiHistoryBase {
+	service: "search";
+	params: ApiSearchRequest;
+	result: ApiSearchResponse;
+}
+
+export interface ApiMonitorHistoryEntry extends ApiHistoryBase {
+	service: "monitor";
+	params: { cronId: string; url: string };
+	result: ApiMonitorResult;
+}
+
+export interface ApiCrawlHistoryEntry extends ApiHistoryBase {
+	service: "crawl";
+	params: { url: string; maxPages: number };
+	result: ApiCrawlResult;
+}
+
+export type ApiHistoryEntry =
+	| ApiScrapeHistoryEntry
+	| ApiExtractHistoryEntry
+	| ApiSchemaHistoryEntry
+	| ApiSearchHistoryEntry
+	| ApiMonitorHistoryEntry
+	| ApiCrawlHistoryEntry;
+
+export interface ApiPageResponse<T> {
+	data: T[];
+	pagination: {
+		page: number;
+		limit: number;
+		total: number;
+	};
+}
+
+export type ApiHistoryPage = ApiPageResponse<ApiHistoryEntry>;
+
+export interface ApiJobsStatus {
+	used: number;
+	limit: number;
+}
+
+export interface ApiCreditsResponse {
+	remaining: number;
+	used: number;
+	plan: string;
+	jobs: {
+		crawl: ApiJobsStatus;
+		monitor: ApiJobsStatus;
+	};
+}
+
+export interface ApiHealthResponse {
+	status: string;
+	uptime: number;
+	services?: {
+		redis: "ok" | "down";
+		db: "ok" | "down";
+	};
+}
+
+export interface ApiResult<T> {
 	status: "success" | "error";
 	data: T | null;
 	error?: string;
 	elapsedMs: number;
-};
-
-export type SmartScraperResponse = {
-	request_id: string;
-	status: string;
-	website_url: string;
-	user_prompt: string;
-	result: Record<string, unknown> | null;
-	error?: string;
-};
-
-export type SearchScraperResponse = {
-	request_id: string;
-	status: string;
-	user_prompt: string;
-	num_results?: number;
-	result: Record<string, unknown> | null;
-	markdown_content?: string | null;
-	reference_urls: string[];
-	error?: string | null;
-};
-
-export type MarkdownifyResponse = {
-	request_id: string;
-	status: string;
-	website_url: string;
-	result: string | null;
-	error?: string;
-};
-
-export type CrawlPage = {
-	url: string;
-	markdown: string;
-};
-
-export type CrawlResponse = {
-	task_id: string;
-	status: string;
-	result?: Record<string, unknown> | null;
-	llm_result?: Record<string, unknown> | null;
-	crawled_urls?: string[];
-	pages?: CrawlPage[];
-	credits_used?: number;
-	pages_processed?: number;
-	elapsed_time?: number;
-	error?: string;
-};
-
-export type ScrapeResponse = {
-	scrape_request_id: string;
-	status: string;
-	html: string;
-	branding?: Record<string, unknown> | null;
-	metadata?: Record<string, unknown> | null;
-	error?: string;
-};
-
-export type AgenticScraperResponse = {
-	request_id: string;
-	status: string;
-	result: Record<string, unknown> | null;
-	error?: string;
-};
-
-export type GenerateSchemaResponse = {
-	request_id: string;
-	status: string;
-	user_prompt: string;
-	refined_prompt?: string | null;
-	generated_schema?: Record<string, unknown> | null;
-	error?: string | null;
-	created_at?: string | null;
-	updated_at?: string | null;
-};
-
-export type SitemapResponse = {
-	request_id: string;
-	urls: string[];
-	status?: string;
-	website_url?: string;
-	error?: string;
-};
-
-export type CreditsResponse = {
-	remaining_credits: number;
-	total_credits_used: number;
-};
-
-export type HealthResponse = {
-	status: string;
-};
-
-export type HistoryResponse = {
-	requests: HistoryEntry[];
-	total_count: number;
-	page: number;
-	page_size: number;
-};
-
-export type HistoryEntry = {
-	request_id: string;
-	status: string;
-	[key: string]: unknown;
-};
+}
