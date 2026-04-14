@@ -1,30 +1,39 @@
 import { describe, expect, test } from "bun:test";
-import { crawl, extract, getCredits, history, scrape, search } from "../src/index.js";
+import { ScrapeGraphAI } from "../src/index.js";
 
-const API_KEY = process.env.SGAI_API_KEY;
-if (!API_KEY) throw new Error("SGAI_API_KEY env var required for integration tests");
+if (!process.env.SGAI_API_KEY)
+	throw new Error("SGAI_API_KEY env var required for integration tests");
+
+const sgai = ScrapeGraphAI();
 
 describe("integration", () => {
-	test("getCredits", async () => {
-		const res = await getCredits(API_KEY);
-		console.log("getCredits:", res);
+	test("credits", async () => {
+		const res = await sgai.credits();
+		console.log("credits:", res);
 		expect(res.status).toBe("success");
 		expect(res.data).toHaveProperty("remaining");
 		expect(res.data).toHaveProperty("plan");
 	});
 
-	test("scrape markdown", async () => {
-		const res = await scrape(API_KEY, {
-			url: "https://example.com",
-			formats: [{ type: "markdown" }],
-		});
-		console.log("scrape:", res.status, res.error);
+	test("scrape - no formats (defaults to markdown)", async () => {
+		const res = await sgai.scrape({ url: "https://example.com" });
+		console.log("scrape default:", res.status, res.error);
 		expect(res.status).toBe("success");
 		expect(res.data?.results.markdown).toBeDefined();
 	});
 
-	test("scrape with multiple formats", async () => {
-		const res = await scrape(API_KEY, {
+	test("scrape - single format", async () => {
+		const res = await sgai.scrape({
+			url: "https://example.com",
+			formats: [{ type: "markdown" }],
+		});
+		console.log("scrape single:", res.status, res.error);
+		expect(res.status).toBe("success");
+		expect(res.data?.results.markdown).toBeDefined();
+	});
+
+	test("scrape - multiple formats", async () => {
+		const res = await sgai.scrape({
 			url: "https://example.com",
 			formats: [{ type: "markdown", mode: "reader" }, { type: "links" }, { type: "images" }],
 		});
@@ -34,8 +43,8 @@ describe("integration", () => {
 		expect(res.data?.results.links).toBeDefined();
 	});
 
-	test("scrape PDF document", async () => {
-		const res = await scrape(API_KEY, {
+	test("scrape - PDF document", async () => {
+		const res = await sgai.scrape({
 			url: "https://pdfobject.com/pdf/sample.pdf",
 			contentType: "application/pdf",
 			formats: [{ type: "markdown" }],
@@ -45,8 +54,8 @@ describe("integration", () => {
 		expect(res.data?.metadata.contentType).toBe("application/pdf");
 	});
 
-	test("scrape with fetchConfig", async () => {
-		const res = await scrape(API_KEY, {
+	test("scrape - with fetchConfig", async () => {
+		const res = await sgai.scrape({
 			url: "https://example.com",
 			fetchConfig: { mode: "fast", timeout: 15000 },
 			formats: [{ type: "markdown" }],
@@ -56,7 +65,7 @@ describe("integration", () => {
 	});
 
 	test("extract", async () => {
-		const res = await extract(API_KEY, {
+		const res = await sgai.extract({
 			url: "https://example.com",
 			prompt: "What is this page about?",
 		});
@@ -65,7 +74,7 @@ describe("integration", () => {
 	});
 
 	test("search", async () => {
-		const res = await search(API_KEY, {
+		const res = await sgai.search({
 			query: "anthropic claude",
 			numResults: 2,
 		});
@@ -75,13 +84,13 @@ describe("integration", () => {
 	});
 
 	test("history.list", async () => {
-		const res = await history.list(API_KEY, { limit: 5 });
+		const res = await sgai.history.list({ limit: 5 });
 		console.log("history.list:", res.status, res.data?.pagination);
 		expect(res.status).toBe("success");
 	});
 
 	test("crawl.start and crawl.get", async () => {
-		const startRes = await crawl.start(API_KEY, {
+		const startRes = await sgai.crawl.start({
 			url: "https://example.com",
 			maxPages: 2,
 		});
@@ -98,7 +107,7 @@ describe("integration", () => {
 		expect(startRes.status).toBe("success");
 
 		if (startRes.data?.id) {
-			const getRes = await crawl.get(API_KEY, startRes.data.id);
+			const getRes = await sgai.crawl.get(startRes.data.id);
 			console.log("crawl.get:", getRes.status, getRes.data?.status);
 			expect(getRes.status).toBe("success");
 		}
