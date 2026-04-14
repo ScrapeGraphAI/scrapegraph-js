@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-export const apiServiceEnumSchema = z.enum([
-	"scrape",
-	"extract",
-	"schema",
-	"search",
-	"monitor",
-	"crawl",
-]);
+export const apiServiceEnumSchema = z.enum(["scrape", "extract", "search", "monitor", "crawl"]);
 
 export const apiStatusEnumSchema = z.enum(["completed", "failed"]);
 
@@ -201,11 +194,6 @@ export const apiExtractRequestBaseSchema = z
 	.refine((d) => d.url || d.html || d.markdown, {
 		message: "Either url, html, or markdown is required",
 	});
-
-export const apiGenerateSchemaRequestSchema = z.object({
-	prompt: apiUserPromptSchema,
-	existingSchema: z.record(z.string(), z.unknown()).optional(),
-});
 
 export const apiSearchRequestSchema = z
 	.object({

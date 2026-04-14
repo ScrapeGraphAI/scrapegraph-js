@@ -1,8 +1,9 @@
-import { history } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await history.list(apiKey, {
+const res = await sgai.history.list({
 	service: "scrape",
 	limit: 5,
 });

@@ -1,8 +1,10 @@
 export {
+	ScrapeGraphAI,
+	type ScrapeGraphAIClient,
+	type ScrapeGraphAIInput,
 	scrape,
 	extract,
 	search,
-	generateSchema,
 	getCredits,
 	checkHealth,
 	history,
@@ -21,8 +23,6 @@ export type {
 	ApiScrapeResultMap,
 	ApiExtractRequest,
 	ApiExtractResponse,
-	ApiGenerateSchemaRequest,
-	ApiGenerateSchemaResponse,
 	ApiSearchRequest,
 	ApiSearchResponse,
 	ApiSearchResult,
@@ -53,7 +53,6 @@ export type {
 export {
 	apiScrapeRequestSchema,
 	apiExtractRequestBaseSchema,
-	apiGenerateSchemaRequestSchema,
 	apiSearchRequestSchema,
 	apiCrawlRequestSchema,
 	apiMonitorCreateSchema,

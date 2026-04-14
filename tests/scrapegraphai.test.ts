@@ -715,25 +715,6 @@ describe("search", () => {
 	});
 });
 
-describe("generateSchema", () => {
-	const params = { prompt: "Schema for product listing" };
-
-	test("success", async () => {
-		const body = {
-			refinedPrompt: "Extract product details",
-			schema: { type: "object", properties: {} },
-			usage: { promptTokens: 50, completionTokens: 100 },
-		};
-		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
-
-		const res = await sdk.generateSchema(API_KEY, params);
-
-		expect(res.status).toBe("success");
-		expect(res.data).toEqual(body);
-		expectRequest(0, "POST", "/schema", params);
-	});
-});
-
 describe("getCredits", () => {
 	test("success", async () => {
 		const body = {
