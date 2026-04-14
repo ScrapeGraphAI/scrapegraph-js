@@ -83,6 +83,25 @@ describe("scrapegraphai", () => {
 		api.stop();
 	});
 
+	test("scrape sends stealth and mode in fetchConfig", async () => {
+		let body: any;
+		const api = mockApi({
+			"/api/v2/scrape": async (req) => {
+				body = await req.json();
+				return Response.json(
+					{ results: { markdown: "# Hello" }, metadata: { url: "https://example.com" } },
+					{ headers: { "x-request-id": "req-stealth" } },
+				);
+			},
+		});
+		const sgai = scrapegraphai({ apiKey: "test", baseUrl: api.url });
+		await sgai.scrape("https://example.com", {
+			fetchConfig: { mode: "fast", stealth: true, country: "us" },
+		});
+		expect(body.fetchConfig).toEqual({ mode: "fast", stealth: true, country: "us" });
+		api.stop();
+	});
+
 	test("extract sends prompt, schema, and fetchConfig", async () => {
 		let body: any;
 		const api = mockApi({

@@ -26,7 +26,7 @@ export const apiFetchContentTypeSchema = z.enum([
 	"text/plain",
 	"application/x-latex",
 ]);
-export const apiFetchModeSchema = z.enum(["auto", "fast", "js", "direct+stealth", "js+stealth"]);
+export const apiFetchModeSchema = z.enum(["auto", "fast", "js"]);
 export const apiUserPromptSchema = z.string().min(1).max(10_000);
 
 export const apiUrlSchema = z.url().check(
@@ -52,6 +52,7 @@ export const apiUuidParamSchema = z.object({
 
 export const FETCH_CONFIG_DEFAULTS = {
 	mode: "auto",
+	stealth: false,
 	timeout: 30000,
 	wait: 0,
 	scrolls: 0,
@@ -59,6 +60,7 @@ export const FETCH_CONFIG_DEFAULTS = {
 
 export const apiFetchConfigSchema = z.object({
 	mode: apiFetchModeSchema.default(FETCH_CONFIG_DEFAULTS.mode),
+	stealth: z.boolean().default(FETCH_CONFIG_DEFAULTS.stealth),
 	timeout: z.number().int().min(1000).max(60000).default(FETCH_CONFIG_DEFAULTS.timeout),
 	wait: z.number().int().min(0).max(30000).default(FETCH_CONFIG_DEFAULTS.wait),
 	headers: z.record(z.string(), z.string()).optional(),
