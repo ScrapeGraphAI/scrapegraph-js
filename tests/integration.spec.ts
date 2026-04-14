@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { crawl, extract, getCredits, history, scrape, search } from "../src/index.js";
 
-const API_KEY = process.env.SGAI_API_KEY || "sgai-669918e5-55be-4752-a684-f6da788d1384";
+const API_KEY = process.env.SGAI_API_KEY;
+if (!API_KEY) throw new Error("SGAI_API_KEY env var required for integration tests");
 
 describe("integration", () => {
 	test("getCredits", async () => {
