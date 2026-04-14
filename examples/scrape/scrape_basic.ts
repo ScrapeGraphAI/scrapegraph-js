@@ -1,8 +1,9 @@
-import { scrape } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await scrape(apiKey, {
+const res = await sgai.scrape({
 	url: "https://example.com",
 	formats: [{ type: "markdown" }],
 });

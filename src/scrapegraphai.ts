@@ -5,8 +5,6 @@ import type {
 	ApiCreditsResponse,
 	ApiExtractRequest,
 	ApiExtractResponse,
-	ApiGenerateSchemaRequest,
-	ApiGenerateSchemaResponse,
 	ApiHealthResponse,
 	ApiHistoryEntry,
 	ApiHistoryFilter,
@@ -146,23 +144,6 @@ export async function search(
 ): Promise<ApiResult<ApiSearchResponse>> {
 	try {
 		const { data, elapsedMs } = await request<ApiSearchResponse>("POST", "/search", apiKey, params);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function generateSchema(
-	apiKey: string,
-	params: ApiGenerateSchemaRequest,
-): Promise<ApiResult<ApiGenerateSchemaResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiGenerateSchemaResponse>(
-			"POST",
-			"/schema",
-			apiKey,
-			params,
-		);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -371,3 +352,46 @@ export const monitor = {
 		}
 	},
 };
+
+export interface ScrapeGraphAIInput {
+	apiKey?: string;
+}
+
+function resolveApiKey(opts?: ScrapeGraphAIInput): string {
+	const key = opts?.apiKey ?? process.env.SGAI_API_KEY;
+	if (!key) throw new Error("API key required: pass { apiKey } or set SGAI_API_KEY env var");
+	return key;
+}
+
+export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
+	const key = resolveApiKey(opts);
+	return {
+		scrape: (params: ApiScrapeRequest) => scrape(key, params),
+		extract: (params: ApiExtractRequest) => extract(key, params),
+		search: (params: ApiSearchRequest) => search(key, params),
+		credits: () => getCredits(key),
+		healthy: () => checkHealth(key),
+		history: {
+			list: (params?: ApiHistoryFilter) => history.list(key, params),
+			get: (id: string) => history.get(key, id),
+		},
+		crawl: {
+			start: (params: ApiCrawlRequest) => crawl.start(key, params),
+			get: (id: string) => crawl.get(key, id),
+			stop: (id: string) => crawl.stop(key, id),
+			resume: (id: string) => crawl.resume(key, id),
+			delete: (id: string) => crawl.delete(key, id),
+		},
+		monitor: {
+			create: (params: ApiMonitorCreateInput) => monitor.create(key, params),
+			list: () => monitor.list(key),
+			get: (id: string) => monitor.get(key, id),
+			update: (id: string, params: ApiMonitorUpdateInput) => monitor.update(key, id, params),
+			delete: (id: string) => monitor.delete(key, id),
+			pause: (id: string) => monitor.pause(key, id),
+			resume: (id: string) => monitor.resume(key, id),
+		},
+	};
+}
+
+export type ScrapeGraphAIClient = ReturnType<typeof ScrapeGraphAI>;

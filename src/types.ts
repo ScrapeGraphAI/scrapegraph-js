@@ -4,7 +4,6 @@ import type {
 	apiExtractRequestBaseSchema,
 	apiFetchConfigSchema,
 	apiFetchContentTypeSchema,
-	apiGenerateSchemaRequestSchema,
 	apiHistoryFilterSchema,
 	apiHtmlModeSchema,
 	apiMonitorCreateSchema,
@@ -21,7 +20,6 @@ export type ApiScrapeFormatEntry = z.input<typeof apiScrapeFormatEntrySchema>;
 
 export type ApiScrapeRequest = z.input<typeof apiScrapeRequestSchema>;
 export type ApiExtractRequest = z.input<typeof apiExtractRequestBaseSchema>;
-export type ApiGenerateSchemaRequest = z.input<typeof apiGenerateSchemaRequestSchema>;
 export type ApiSearchRequest = z.input<typeof apiSearchRequestSchema>;
 export type ApiCrawlRequest = z.input<typeof apiCrawlRequestSchema>;
 export type ApiMonitorCreateInput = z.input<typeof apiMonitorCreateSchema>;
@@ -191,12 +189,6 @@ export interface ApiExtractResponse {
 	};
 }
 
-export interface ApiGenerateSchemaResponse {
-	refinedPrompt: string;
-	schema: Record<string, unknown>;
-	usage: ApiTokenUsage;
-}
-
 export interface ApiSearchResult {
 	url: string;
 	title: string;
@@ -306,7 +298,7 @@ export interface ApiMonitorResponse {
 	updatedAt: string;
 }
 
-export type ApiHistoryService = "scrape" | "extract" | "schema" | "search" | "monitor" | "crawl";
+export type ApiHistoryService = "scrape" | "extract" | "search" | "monitor" | "crawl";
 export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused" | "deleted";
 
 interface ApiHistoryBase {
@@ -330,12 +322,6 @@ export interface ApiExtractHistoryEntry extends ApiHistoryBase {
 	result: ApiExtractResponse;
 }
 
-export interface ApiSchemaHistoryEntry extends ApiHistoryBase {
-	service: "schema";
-	params: ApiGenerateSchemaRequest;
-	result: ApiGenerateSchemaResponse;
-}
-
 export interface ApiSearchHistoryEntry extends ApiHistoryBase {
 	service: "search";
 	params: ApiSearchRequest;
@@ -357,7 +343,6 @@ export interface ApiCrawlHistoryEntry extends ApiHistoryBase {
 export type ApiHistoryEntry =
 	| ApiScrapeHistoryEntry
 	| ApiExtractHistoryEntry
-	| ApiSchemaHistoryEntry
 	| ApiSearchHistoryEntry
 	| ApiMonitorHistoryEntry
 	| ApiCrawlHistoryEntry;

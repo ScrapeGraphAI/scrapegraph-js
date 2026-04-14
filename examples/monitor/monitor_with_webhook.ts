@@ -1,8 +1,9 @@
-import { monitor } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await monitor.create(apiKey, {
+const res = await sgai.monitor.create({
 	url: "https://example.com/prices",
 	name: "Price Monitor",
 	interval: "0 */6 * * *",

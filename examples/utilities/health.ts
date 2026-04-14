@@ -1,8 +1,9 @@
-import { checkHealth } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await checkHealth(apiKey);
+const res = await sgai.healthy();
 
 if (res.status === "success") {
 	console.log("API Status:", res.data?.status);

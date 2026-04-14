@@ -1,13 +1,13 @@
-# ScrapeGraph JS SDK
+# ScrapeGraphAI JS SDK
 
 [![npm version](https://badge.fury.io/js/scrapegraph-js.svg)](https://badge.fury.io/js/scrapegraph-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 <p align="center">
-  <img src="media/banner.png" alt="ScrapeGraph JS SDK" style="width: 100%;">
+  <img src="media/banner.png" alt="ScrapeGraphAI JS SDK" style="width: 100%;">
 </p>
 
-Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com).
+Official TypeScript SDK for the [ScrapeGraphAI AI API](https://scrapegraphai.com).
 
 ## Install
 
@@ -20,9 +20,12 @@ bun add scrapegraph-js
 ## Quick Start
 
 ```ts
-import { scrape } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const result = await scrape("your-api-key", {
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
+
+const result = await sgai.scrape({
   url: "https://example.com",
   formats: [{ type: "markdown" }],
 });
@@ -52,7 +55,7 @@ type ApiResult<T> = {
 Scrape a webpage in multiple formats (markdown, html, screenshot, json, etc).
 
 ```ts
-const res = await scrape("key", {
+const res = await sgai.scrape({
   url: "https://example.com",
   formats: [
     { type: "markdown", mode: "reader" },
@@ -88,7 +91,7 @@ const res = await scrape("key", {
 Extract structured data from a URL, HTML, or markdown using AI.
 
 ```ts
-const res = await extract("key", {
+const res = await sgai.extract({
   url: "https://example.com",
   prompt: "Extract product names and prices",
   schema: { /* JSON schema */ },   // optional
@@ -103,7 +106,7 @@ const res = await extract("key", {
 Search the web and optionally extract structured data.
 
 ```ts
-const res = await search("key", {
+const res = await sgai.search({
   query: "best programming languages 2024",
   numResults: 5,                   // 1-20, default 3
   format: "markdown",              // "markdown" | "html"
@@ -115,24 +118,13 @@ const res = await search("key", {
 });
 ```
 
-### generateSchema
-
-Generate a JSON schema from a natural language description.
-
-```ts
-const res = await generateSchema("key", {
-  prompt: "Schema for a product with name, price, and rating",
-  existingSchema: { /* ... */ },   // optional, to modify
-});
-```
-
 ### crawl
 
 Crawl a website and its linked pages.
 
 ```ts
 // Start a crawl
-const start = await crawl.start("key", {
+const start = await sgai.crawl.start({
   url: "https://example.com",
   formats: [{ type: "markdown" }],
   maxPages: 50,
@@ -144,12 +136,12 @@ const start = await crawl.start("key", {
 });
 
 // Check status
-const status = await crawl.get("key", start.data?.id!);
+const status = await sgai.crawl.get(start.data?.id!);
 
-// Control crawl by ID
-await crawl.stop("key", start.data?.id!);
-await crawl.resume("key", start.data?.id!);
-await crawl.delete("key", start.data?.id!);
+// Control
+await sgai.crawl.stop(id);
+await sgai.crawl.resume(id);
+await sgai.crawl.delete(id);
 ```
 
 ### monitor
@@ -158,7 +150,7 @@ Monitor a webpage for changes on a schedule.
 
 ```ts
 // Create a monitor
-const mon = await monitor.create("key", {
+const mon = await sgai.monitor.create({
   url: "https://example.com",
   name: "Price Monitor",
   interval: "0 * * * *",           // cron expression
@@ -168,12 +160,12 @@ const mon = await monitor.create("key", {
 });
 
 // Manage monitors
-await monitor.list("key");
-await monitor.get("key", cronId);
-await monitor.update("key", cronId, { interval: "0 */6 * * *" });
-await monitor.pause("key", cronId);
-await monitor.resume("key", cronId);
-await monitor.delete("key", cronId);
+await sgai.monitor.list();
+await sgai.monitor.get(cronId);
+await sgai.monitor.update(cronId, { interval: "0 */6 * * *" });
+await sgai.monitor.pause(cronId);
+await sgai.monitor.resume(cronId);
+await sgai.monitor.delete(cronId);
 ```
 
 ### history
@@ -181,22 +173,22 @@ await monitor.delete("key", cronId);
 Fetch request history.
 
 ```ts
-const list = await history.list("key", {
+const list = await sgai.history.list({
   service: "scrape",               // optional filter
   page: 1,
   limit: 20,
 });
 
-const entry = await history.get("key", "request-id");
+const entry = await sgai.history.get("request-id");
 ```
 
-### getCredits / checkHealth
+### credits / healthy
 
 ```ts
-const credits = await getCredits("key");
+const credits = await sgai.credits();
 // { remaining: 1000, used: 500, plan: "pro", jobs: { crawl: {...}, monitor: {...} } }
 
-const health = await checkHealth("key");
+const health = await sgai.healthy();
 // { status: "ok", uptime: 12345 }
 ```
 
@@ -217,8 +209,6 @@ const health = await checkHealth("key");
 | crawl | [`crawl_with_formats.ts`](examples/crawl/crawl_with_formats.ts) | Crawl with screenshots and patterns |
 | monitor | [`monitor_basic.ts`](examples/monitor/monitor_basic.ts) | Create a page monitor |
 | monitor | [`monitor_with_webhook.ts`](examples/monitor/monitor_with_webhook.ts) | Monitor with webhook notifications |
-| schema | [`generate_schema_basic.ts`](examples/schema/generate_schema_basic.ts) | Generate JSON schema from prompt |
-| schema | [`modify_existing_schema.ts`](examples/schema/modify_existing_schema.ts) | Modify an existing schema |
 | utilities | [`credits.ts`](examples/utilities/credits.ts) | Check account credits and limits |
 | utilities | [`health.ts`](examples/utilities/health.ts) | API health check |
 | utilities | [`history.ts`](examples/utilities/history.ts) | Request history |
@@ -227,7 +217,7 @@ const health = await checkHealth("key");
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SGAI_API_KEY` | Your ScrapeGraph API key | — |
+| `SGAI_API_KEY` | Your ScrapeGraphAI API key | — |
 | `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v2` |
 | `SGAI_DEBUG` | Enable debug logging (`"1"`) | off |
 | `SGAI_TIMEOUT_S` | Request timeout in seconds | `120` |
@@ -244,4 +234,4 @@ bun run check             # tsc --noEmit + biome
 
 ## License
 
-MIT - [ScrapeGraph AI](https://scrapegraphai.com)
+MIT - [ScrapeGraphAI AI](https://scrapegraphai.com)

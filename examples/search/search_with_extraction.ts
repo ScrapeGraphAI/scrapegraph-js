@@ -1,8 +1,9 @@
-import { search } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await search(apiKey, {
+const res = await sgai.search({
 	query: "typescript best practices",
 	numResults: 5,
 	prompt: "Extract the main tips and recommendations",

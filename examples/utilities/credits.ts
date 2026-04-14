@@ -1,8 +1,9 @@
-import { getCredits } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-const res = await getCredits(apiKey);
+const res = await sgai.credits();
 
 if (res.status === "success") {
 	console.log("Plan:", res.data?.plan);
