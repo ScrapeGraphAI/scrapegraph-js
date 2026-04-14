@@ -7,7 +7,7 @@
   <img src="https://raw.githubusercontent.com/VinciGit00/Scrapegraph-ai/main/docs/assets/api-banner.png" alt="ScrapeGraph API Banner" style="width: 70%;">
 </p>
 
-Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com). Zero dependencies.
+Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com) v2.
 
 ## Install
 
@@ -20,15 +20,15 @@ bun add scrapegraph-js
 ## Quick Start
 
 ```ts
-import { smartScraper } from "scrapegraph-js";
+import { scrape } from "scrapegraph-js";
 
-const result = await smartScraper("your-api-key", {
-  user_prompt: "Extract the page title and description",
-  website_url: "https://example.com",
+const result = await scrape("your-api-key", {
+  url: "https://example.com",
+  formats: [{ type: "markdown" }],
 });
 
 if (result.status === "success") {
-  console.log(result.data);
+  console.log(result.data?.results.markdown?.data);
 } else {
   console.error(result.error);
 }
@@ -47,116 +47,71 @@ type ApiResult<T> = {
 
 ## API
 
-All functions take `(apiKey, params)` where `params` is a typed object.
-
-### smartScraper
-
-Extract structured data from a webpage using AI.
-
-```ts
-const res = await smartScraper("key", {
-  user_prompt: "Extract product names and prices",
-  website_url: "https://example.com",
-  output_schema: { /* JSON schema */ },  // optional
-  number_of_scrolls: 5,                  // optional, 0-50
-  total_pages: 3,                        // optional, 1-100
-  stealth: true,                         // optional, +4 credits
-  cookies: { session: "abc" },           // optional
-  headers: { "Accept-Language": "en" },  // optional
-  steps: ["Click 'Load More'"],          // optional, browser actions
-  wait_ms: 5000,                         // optional, default 3000
-  country_code: "us",                    // optional, proxy routing
-  mock: true,                            // optional, testing mode
-});
-```
-
-### searchScraper
-
-Search the web and extract structured results.
-
-```ts
-const res = await searchScraper("key", {
-  user_prompt: "Latest TypeScript release features",
-  num_results: 5,                  // optional, 3-20
-  extraction_mode: true,           // optional, false for markdown
-  output_schema: { /* */ },        // optional
-  stealth: true,                   // optional, +4 credits
-  time_range: "past_week",        // optional, past_hour|past_24_hours|past_week|past_month|past_year
-  location_geo_code: "us",        // optional, geographic targeting
-  mock: true,                      // optional, testing mode
-});
-// res.data.result (extraction mode) or res.data.markdown_content (markdown mode)
-```
-
-### markdownify
-
-Convert a webpage to clean markdown.
-
-```ts
-const res = await markdownify("key", {
-  website_url: "https://example.com",
-  stealth: true,         // optional, +4 credits
-  wait_ms: 5000,         // optional, default 3000
-  country_code: "us",    // optional, proxy routing
-  mock: true,            // optional, testing mode
-});
-// res.data.result is the markdown string
-```
-
 ### scrape
 
-Get raw HTML from a webpage.
+Scrape a webpage in multiple formats (markdown, html, screenshot, json, etc).
 
 ```ts
 const res = await scrape("key", {
-  website_url: "https://example.com",
-  stealth: true,       // optional, +4 credits
-  branding: true,      // optional, extract brand design
-  country_code: "us",  // optional, proxy routing
-  wait_ms: 5000,       // optional, default 3000
-});
-// res.data.html is the HTML string
-// res.data.scrape_request_id is the request identifier
-```
-
-### crawl
-
-Crawl a website and its linked pages. Async — polls until completion.
-
-```ts
-const res = await crawl(
-  "key",
-  {
-    url: "https://example.com",
-    prompt: "Extract company info",       // required when extraction_mode=true
-    max_pages: 10,                        // optional, default 10
-    depth: 2,                             // optional, default 1
-    breadth: 5,                           // optional, max links per depth
-    schema: { /* JSON schema */ },        // optional
-    sitemap: true,                        // optional
-    stealth: true,                        // optional, +4 credits
-    wait_ms: 5000,                        // optional, default 3000
-    batch_size: 3,                        // optional, default 1
-    same_domain_only: true,               // optional, default true
-    cache_website: true,                  // optional
-    headers: { "Accept-Language": "en" }, // optional
+  url: "https://example.com",
+  formats: [
+    { type: "markdown", mode: "reader" },
+    { type: "screenshot", fullPage: true, width: 1440, height: 900 },
+    { type: "json", prompt: "Extract product info" },
+  ],
+  contentType: "text/html",        // optional, auto-detected
+  fetchConfig: {                   // optional
+    mode: "js",                    // "auto" | "fast" | "js"
+    stealth: true,
+    timeout: 30000,
+    wait: 2000,
+    scrolls: 3,
+    headers: { "Accept-Language": "en" },
+    cookies: { session: "abc" },
+    country: "us",
   },
-  (status) => console.log(status),        // optional poll callback
-);
+});
 ```
 
-### agenticScraper
+**Formats:**
+- `markdown` — Clean markdown (modes: `normal`, `reader`, `prune`)
+- `html` — Raw HTML (modes: `normal`, `reader`, `prune`)
+- `links` — All links on the page
+- `images` — All image URLs
+- `summary` — AI-generated summary
+- `json` — Structured extraction with prompt/schema
+- `branding` — Brand colors, typography, logos
+- `screenshot` — Page screenshot (fullPage, width, height, quality)
 
-Automate browser actions (click, type, navigate) then extract data.
+### extract
+
+Extract structured data from a URL, HTML, or markdown using AI.
 
 ```ts
-const res = await agenticScraper("key", {
-  url: "https://example.com/login",
-  steps: ["Type user@example.com in email", "Click login button"],  // required
-  user_prompt: "Extract dashboard data",  // required when ai_extraction=true
-  output_schema: { /* */ },               // required when ai_extraction=true
-  ai_extraction: true,                    // optional
-  use_session: true,                      // optional
+const res = await extract("key", {
+  url: "https://example.com",
+  prompt: "Extract product names and prices",
+  schema: { /* JSON schema */ },   // optional
+  mode: "reader",                  // optional
+  fetchConfig: { /* ... */ },      // optional
+});
+// Or pass html/markdown directly instead of url
+```
+
+### search
+
+Search the web and optionally extract structured data.
+
+```ts
+const res = await search("key", {
+  query: "best programming languages 2024",
+  numResults: 5,                   // 1-20, default 3
+  format: "markdown",              // "markdown" | "html"
+  prompt: "Extract key points",    // optional, for AI extraction
+  schema: { /* ... */ },           // optional
+  timeRange: "past_week",          // optional
+  locationGeoCode: "us",           // optional
+  fetchConfig: { /* ... */ },      // optional
 });
 ```
 
@@ -166,68 +121,113 @@ Generate a JSON schema from a natural language description.
 
 ```ts
 const res = await generateSchema("key", {
-  user_prompt: "Schema for a product with name, price, and rating",
-  existing_schema: { /* modify this */ }, // optional
+  prompt: "Schema for a product with name, price, and rating",
+  existingSchema: { /* ... */ },   // optional, to modify
 });
 ```
 
-### sitemap
+### crawl
 
-Extract all URLs from a website's sitemap.
+Crawl a website and its linked pages.
 
 ```ts
-const res = await sitemap("key", {
-  website_url: "https://example.com",
-  headers: { /* */ },  // optional
-  stealth: true,       // optional, +4 credits
-  mock: true,          // optional, testing mode
+// Start a crawl
+const start = await crawl.start("key", {
+  url: "https://example.com",
+  formats: [{ type: "markdown" }],
+  maxPages: 50,
+  maxDepth: 2,
+  maxLinksPerPage: 10,
+  includePatterns: ["/blog/*"],
+  excludePatterns: ["/admin/*"],
+  fetchConfig: { /* ... */ },
 });
-// res.data.urls is string[]
+
+// Check status
+const status = await crawl.get("key", start.data.id);
+
+// Control
+await crawl.stop("key", id);
+await crawl.resume("key", id);
+await crawl.delete("key", id);
+```
+
+### monitor
+
+Monitor a webpage for changes on a schedule.
+
+```ts
+// Create a monitor
+const mon = await monitor.create("key", {
+  url: "https://example.com",
+  name: "Price Monitor",
+  interval: "0 * * * *",           // cron expression
+  formats: [{ type: "markdown" }],
+  webhookUrl: "https://...",       // optional
+  fetchConfig: { /* ... */ },
+});
+
+// Manage monitors
+await monitor.list("key");
+await monitor.get("key", cronId);
+await monitor.update("key", cronId, { interval: "0 */6 * * *" });
+await monitor.pause("key", cronId);
+await monitor.resume("key", cronId);
+await monitor.delete("key", cronId);
+```
+
+### history
+
+Fetch request history.
+
+```ts
+const list = await history.list("key", {
+  service: "scrape",               // optional filter
+  page: 1,
+  limit: 20,
+});
+
+const entry = await history.get("key", "request-id");
 ```
 
 ### getCredits / checkHealth
 
 ```ts
 const credits = await getCredits("key");
-// { remaining_credits: 420, total_credits_used: 69 }
+// { remaining: 1000, used: 500, plan: "pro", jobs: { crawl: {...}, monitor: {...} } }
 
 const health = await checkHealth("key");
-// { status: "healthy" }
-```
-
-### history
-
-Fetch request history for any service.
-
-```ts
-const res = await history("key", {
-  service: "smartscraper",
-  page: 1,       // optional, default 1
-  page_size: 10, // optional, default 10
-});
+// { status: "ok", uptime: 12345 }
 ```
 
 ## Examples
 
-Find complete working examples in the [`examples/`](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples) directory:
-
-| Service | Examples |
-|---|---|
-| [SmartScraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/smartscraper) | basic, cookies, html input, infinite scroll, markdown input, pagination, stealth, with schema |
-| [SearchScraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/searchscraper) | basic, markdown mode, with schema |
-| [Markdownify](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/markdownify) | basic, stealth |
-| [Scrape](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/scrape) | basic, stealth, with branding |
-| [Crawl](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/crawl) | basic, markdown mode, with schema |
-| [Agentic Scraper](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/agenticscraper) | basic, AI extraction |
-| [Schema Generation](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/schema) | basic, modify existing |
-| [Sitemap](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/sitemap) | basic, with smartscraper |
-| [Utilities](https://github.com/ScrapeGraphAI/scrapegraph-js/tree/main/examples/utilities) | credits, health, history |
+| Path | Description |
+|------|-------------|
+| [`scrape/scrape_basic.ts`](examples/scrape/scrape_basic.ts) | Basic markdown scraping |
+| [`scrape/scrape_multi_format.ts`](examples/scrape/scrape_multi_format.ts) | Multiple formats (markdown, links, images, screenshot, summary) |
+| [`scrape/scrape_json_extraction.ts`](examples/scrape/scrape_json_extraction.ts) | Structured JSON extraction with schema |
+| [`scrape/scrape_pdf.ts`](examples/scrape/scrape_pdf.ts) | PDF document parsing with OCR metadata |
+| [`scrape/scrape_with_fetchconfig.ts`](examples/scrape/scrape_with_fetchconfig.ts) | JS rendering, stealth mode, scrolling |
+| [`extract/extract_basic.ts`](examples/extract/extract_basic.ts) | AI data extraction from URL |
+| [`extract/extract_with_schema.ts`](examples/extract/extract_with_schema.ts) | Extraction with JSON schema |
+| [`search/search_basic.ts`](examples/search/search_basic.ts) | Web search with results |
+| [`search/search_with_extraction.ts`](examples/search/search_with_extraction.ts) | Search + AI extraction |
+| [`crawl/crawl_basic.ts`](examples/crawl/crawl_basic.ts) | Start and monitor a crawl |
+| [`crawl/crawl_with_formats.ts`](examples/crawl/crawl_with_formats.ts) | Crawl with screenshots and patterns |
+| [`monitor/monitor_basic.ts`](examples/monitor/monitor_basic.ts) | Create a page monitor |
+| [`monitor/monitor_with_webhook.ts`](examples/monitor/monitor_with_webhook.ts) | Monitor with webhook notifications |
+| [`schema/generate_schema_basic.ts`](examples/schema/generate_schema_basic.ts) | Generate JSON schema from prompt |
+| [`schema/modify_existing_schema.ts`](examples/schema/modify_existing_schema.ts) | Modify an existing schema |
+| [`utilities/credits.ts`](examples/utilities/credits.ts) | Check account credits and limits |
+| [`utilities/health.ts`](examples/utilities/health.ts) | API health check |
+| [`utilities/history.ts`](examples/utilities/history.ts) | Request history |
 
 ## Environment Variables
 
 | Variable | Description | Default |
-|---|---|---|
-| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v1` |
+|----------|-------------|---------|
+| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v2` |
 | `SGAI_DEBUG` | Enable debug logging (`"1"`) | off |
 | `SGAI_TIMEOUT_S` | Request timeout in seconds | `120` |
 
@@ -235,9 +235,10 @@ Find complete working examples in the [`examples/`](https://github.com/ScrapeGra
 
 ```bash
 bun install
-bun test          # 21 tests
-bun run build     # tsup → dist/
-bun run check     # tsc --noEmit + biome
+bun run test              # unit tests
+bun run test:integration  # live API tests (requires SGAI_API_KEY)
+bun run build             # tsup → dist/
+bun run check             # tsc --noEmit + biome
 ```
 
 ## License

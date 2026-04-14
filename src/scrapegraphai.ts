@@ -62,6 +62,12 @@ function mapHttpError(status: number): string {
 	}
 }
 
+function parseServerTiming(header: string | null): number | null {
+	if (!header) return null;
+	const match = header.match(/dur=(\d+(?:\.\d+)?)/);
+	return match ? Math.round(Number.parseFloat(match[1])) : null;
+}
+
 type RequestResult<T> = { data: T; elapsedMs: number };
 
 async function request<T>(
@@ -99,7 +105,8 @@ async function request<T>(
 	}
 
 	const data = (await res.json()) as T;
-	const elapsedMs = Math.round(performance.now() - start);
+	const serverTiming = parseServerTiming(res.headers.get("Server-Timing"));
+	const elapsedMs = serverTiming ?? Math.round(performance.now() - start);
 	debug(`← ${res.status} (${elapsedMs}ms)`, data);
 	return { data, elapsedMs };
 }
