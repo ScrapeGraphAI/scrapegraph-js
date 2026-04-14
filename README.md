@@ -202,31 +202,32 @@ const health = await checkHealth("key");
 
 ## Examples
 
-| Path | Description |
-|------|-------------|
-| [`scrape/scrape_basic.ts`](examples/scrape/scrape_basic.ts) | Basic markdown scraping |
-| [`scrape/scrape_multi_format.ts`](examples/scrape/scrape_multi_format.ts) | Multiple formats (markdown, links, images, screenshot, summary) |
-| [`scrape/scrape_json_extraction.ts`](examples/scrape/scrape_json_extraction.ts) | Structured JSON extraction with schema |
-| [`scrape/scrape_pdf.ts`](examples/scrape/scrape_pdf.ts) | PDF document parsing with OCR metadata |
-| [`scrape/scrape_with_fetchconfig.ts`](examples/scrape/scrape_with_fetchconfig.ts) | JS rendering, stealth mode, scrolling |
-| [`extract/extract_basic.ts`](examples/extract/extract_basic.ts) | AI data extraction from URL |
-| [`extract/extract_with_schema.ts`](examples/extract/extract_with_schema.ts) | Extraction with JSON schema |
-| [`search/search_basic.ts`](examples/search/search_basic.ts) | Web search with results |
-| [`search/search_with_extraction.ts`](examples/search/search_with_extraction.ts) | Search + AI extraction |
-| [`crawl/crawl_basic.ts`](examples/crawl/crawl_basic.ts) | Start and monitor a crawl |
-| [`crawl/crawl_with_formats.ts`](examples/crawl/crawl_with_formats.ts) | Crawl with screenshots and patterns |
-| [`monitor/monitor_basic.ts`](examples/monitor/monitor_basic.ts) | Create a page monitor |
-| [`monitor/monitor_with_webhook.ts`](examples/monitor/monitor_with_webhook.ts) | Monitor with webhook notifications |
-| [`schema/generate_schema_basic.ts`](examples/schema/generate_schema_basic.ts) | Generate JSON schema from prompt |
-| [`schema/modify_existing_schema.ts`](examples/schema/modify_existing_schema.ts) | Modify an existing schema |
-| [`utilities/credits.ts`](examples/utilities/credits.ts) | Check account credits and limits |
-| [`utilities/health.ts`](examples/utilities/health.ts) | API health check |
-| [`utilities/history.ts`](examples/utilities/history.ts) | Request history |
+| Service | Example | Description |
+|---------|---------|-------------|
+| scrape | [`scrape_basic.ts`](examples/scrape/scrape_basic.ts) | Basic markdown scraping |
+| scrape | [`scrape_multi_format.ts`](examples/scrape/scrape_multi_format.ts) | Multiple formats (markdown, links, images, screenshot, summary) |
+| scrape | [`scrape_json_extraction.ts`](examples/scrape/scrape_json_extraction.ts) | Structured JSON extraction with schema |
+| scrape | [`scrape_pdf.ts`](examples/scrape/scrape_pdf.ts) | PDF document parsing with OCR metadata |
+| scrape | [`scrape_with_fetchconfig.ts`](examples/scrape/scrape_with_fetchconfig.ts) | JS rendering, stealth mode, scrolling |
+| extract | [`extract_basic.ts`](examples/extract/extract_basic.ts) | AI data extraction from URL |
+| extract | [`extract_with_schema.ts`](examples/extract/extract_with_schema.ts) | Extraction with JSON schema |
+| search | [`search_basic.ts`](examples/search/search_basic.ts) | Web search with results |
+| search | [`search_with_extraction.ts`](examples/search/search_with_extraction.ts) | Search + AI extraction |
+| crawl | [`crawl_basic.ts`](examples/crawl/crawl_basic.ts) | Start and monitor a crawl |
+| crawl | [`crawl_with_formats.ts`](examples/crawl/crawl_with_formats.ts) | Crawl with screenshots and patterns |
+| monitor | [`monitor_basic.ts`](examples/monitor/monitor_basic.ts) | Create a page monitor |
+| monitor | [`monitor_with_webhook.ts`](examples/monitor/monitor_with_webhook.ts) | Monitor with webhook notifications |
+| schema | [`generate_schema_basic.ts`](examples/schema/generate_schema_basic.ts) | Generate JSON schema from prompt |
+| schema | [`modify_existing_schema.ts`](examples/schema/modify_existing_schema.ts) | Modify an existing schema |
+| utilities | [`credits.ts`](examples/utilities/credits.ts) | Check account credits and limits |
+| utilities | [`health.ts`](examples/utilities/health.ts) | API health check |
+| utilities | [`history.ts`](examples/utilities/history.ts) | Request history |
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
+| `SGAI_API_KEY` | Your ScrapeGraph API key | — |
 | `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v2` |
 | `SGAI_DEBUG` | Enable debug logging (`"1"`) | off |
 | `SGAI_TIMEOUT_S` | Request timeout in seconds | `120` |
