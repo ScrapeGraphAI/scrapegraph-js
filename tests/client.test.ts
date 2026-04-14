@@ -160,7 +160,7 @@ describe("scrapegraphai", () => {
 				properties: { title: { type: "string" } },
 				required: ["title"],
 			},
-			locationGeoCode: "it",
+			country: "it",
 			timeRange: "past_week",
 		});
 		expect((res.data as any).results.length).toBe(1);
