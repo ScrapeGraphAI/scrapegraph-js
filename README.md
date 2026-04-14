@@ -144,12 +144,12 @@ const start = await crawl.start("key", {
 });
 
 // Check status
-const status = await crawl.get("key", start.data.id);
+const status = await crawl.get("key", start.data?.id!);
 
-// Control
-await crawl.stop("key", id);
-await crawl.resume("key", id);
-await crawl.delete("key", id);
+// Control crawl by ID
+await crawl.stop("key", start.data?.id!);
+await crawl.resume("key", start.data?.id!);
+await crawl.delete("key", start.data?.id!);
 ```
 
 ### monitor

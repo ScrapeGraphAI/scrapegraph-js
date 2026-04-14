@@ -3,7 +3,7 @@ import { scrape } from "scrapegraph-js";
 const apiKey = process.env.SGAI_API_KEY!;
 
 const res = await scrape(apiKey, {
-	url: "https://scrapegraphai.com",
+	url: "https://example.com",
 	formats: [
 		{
 			type: "json",
