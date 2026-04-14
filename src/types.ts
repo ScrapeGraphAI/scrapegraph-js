@@ -14,19 +14,19 @@ import type {
 	apiSearchRequestSchema,
 } from "./schemas.js";
 
-export type ApiFetchConfig = z.infer<typeof apiFetchConfigSchema>;
+export type ApiFetchConfig = z.input<typeof apiFetchConfigSchema>;
 export type ApiFetchContentType = z.infer<typeof apiFetchContentTypeSchema>;
 export type ApiHtmlMode = z.infer<typeof apiHtmlModeSchema>;
-export type ApiScrapeFormatEntry = z.infer<typeof apiScrapeFormatEntrySchema>;
+export type ApiScrapeFormatEntry = z.input<typeof apiScrapeFormatEntrySchema>;
 
-export type ApiScrapeRequest = z.infer<typeof apiScrapeRequestSchema>;
-export type ApiExtractRequest = z.infer<typeof apiExtractRequestBaseSchema>;
-export type ApiGenerateSchemaRequest = z.infer<typeof apiGenerateSchemaRequestSchema>;
-export type ApiSearchRequest = z.infer<typeof apiSearchRequestSchema>;
-export type ApiCrawlRequest = z.infer<typeof apiCrawlRequestSchema>;
-export type ApiMonitorCreateInput = z.infer<typeof apiMonitorCreateSchema>;
-export type ApiMonitorUpdateInput = z.infer<typeof apiMonitorUpdateSchema>;
-export type ApiHistoryFilter = z.infer<typeof apiHistoryFilterSchema>;
+export type ApiScrapeRequest = z.input<typeof apiScrapeRequestSchema>;
+export type ApiExtractRequest = z.input<typeof apiExtractRequestBaseSchema>;
+export type ApiGenerateSchemaRequest = z.input<typeof apiGenerateSchemaRequestSchema>;
+export type ApiSearchRequest = z.input<typeof apiSearchRequestSchema>;
+export type ApiCrawlRequest = z.input<typeof apiCrawlRequestSchema>;
+export type ApiMonitorCreateInput = z.input<typeof apiMonitorCreateSchema>;
+export type ApiMonitorUpdateInput = z.input<typeof apiMonitorUpdateSchema>;
+export type ApiHistoryFilter = z.input<typeof apiHistoryFilterSchema>;
 
 export type ApiScrapeFormat =
 	| "markdown"

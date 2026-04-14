@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { crawl, extract, getCredits, getHistory, monitor, scrape, search } from "../src/index.js";
+import { crawl, extract, getCredits, getHistory, scrape, search } from "../src/index.js";
 
 const API_KEY = process.env.SGAI_API_KEY || "sgai-669918e5-55be-4752-a684-f6da788d1384";
 
@@ -20,6 +20,38 @@ describe("integration", () => {
 		console.log("scrape:", res.status, res.error);
 		expect(res.status).toBe("success");
 		expect(res.data?.results.markdown).toBeDefined();
+	});
+
+	test("scrape with multiple formats", async () => {
+		const res = await scrape(API_KEY, {
+			url: "https://example.com",
+			formats: [{ type: "markdown", mode: "reader" }, { type: "links" }, { type: "images" }],
+		});
+		console.log("scrape multi:", res.status, res.error);
+		expect(res.status).toBe("success");
+		expect(res.data?.results.markdown).toBeDefined();
+		expect(res.data?.results.links).toBeDefined();
+	});
+
+	test("scrape PDF document", async () => {
+		const res = await scrape(API_KEY, {
+			url: "https://pdfobject.com/pdf/sample.pdf",
+			contentType: "application/pdf",
+			formats: [{ type: "markdown" }],
+		});
+		console.log("scrape PDF:", res.status, res.error);
+		expect(res.status).toBe("success");
+		expect(res.data?.metadata.contentType).toBe("application/pdf");
+	});
+
+	test("scrape with fetchConfig", async () => {
+		const res = await scrape(API_KEY, {
+			url: "https://example.com",
+			fetchConfig: { mode: "fast", timeout: 15000 },
+			formats: [{ type: "markdown" }],
+		});
+		console.log("scrape fetchConfig:", res.status, res.error);
+		expect(res.status).toBe("success");
 	});
 
 	test("extract", async () => {
