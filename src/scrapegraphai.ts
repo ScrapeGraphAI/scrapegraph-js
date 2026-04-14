@@ -216,160 +216,155 @@ export async function getHistoryEntry(
 	}
 }
 
-async function crawlStart(
-	apiKey: string,
-	params: ApiCrawlRequest,
-): Promise<ApiResult<ApiCrawlResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiCrawlResponse>("POST", "/crawl", apiKey, params);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function crawlGet(apiKey: string, id: string): Promise<ApiResult<ApiCrawlResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiCrawlResponse>("GET", `/crawl/${id}`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function crawlStop(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
-	try {
-		const { data, elapsedMs } = await request<{ ok: boolean }>("POST", `/crawl/${id}/stop`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function crawlResume(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
-	try {
-		const { data, elapsedMs } = await request<{ ok: boolean }>(
-			"POST",
-			`/crawl/${id}/resume`,
-			apiKey,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function crawlDelete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
-	try {
-		const { data, elapsedMs } = await request<{ ok: boolean }>("DELETE", `/crawl/${id}`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
 export const crawl = {
-	start: crawlStart,
-	get: crawlGet,
-	stop: crawlStop,
-	resume: crawlResume,
-	delete: crawlDelete,
+	async start(apiKey: string, params: ApiCrawlRequest): Promise<ApiResult<ApiCrawlResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiCrawlResponse>("POST", "/crawl", apiKey, params);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiCrawlResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiCrawlResponse>("GET", `/crawl/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async stop(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"POST",
+				`/crawl/${id}/stop`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async resume(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"POST",
+				`/crawl/${id}/resume`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async delete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>("DELETE", `/crawl/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
 };
 
-async function monitorCreate(
-	apiKey: string,
-	params: ApiMonitorCreateInput,
-): Promise<ApiResult<ApiMonitorResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse>(
-			"POST",
-			"/monitor",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorList(apiKey: string): Promise<ApiResult<ApiMonitorResponse[]>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse[]>("GET", "/monitor", apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorGet(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse>("GET", `/monitor/${id}`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorUpdate(
-	apiKey: string,
-	id: string,
-	params: ApiMonitorUpdateInput,
-): Promise<ApiResult<ApiMonitorResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse>(
-			"PATCH",
-			`/monitor/${id}`,
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorDelete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
-	try {
-		const { data, elapsedMs } = await request<{ ok: boolean }>("DELETE", `/monitor/${id}`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorPause(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse>(
-			"POST",
-			`/monitor/${id}/pause`,
-			apiKey,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-async function monitorResume(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ApiMonitorResponse>(
-			"POST",
-			`/monitor/${id}/resume`,
-			apiKey,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
 export const monitor = {
-	create: monitorCreate,
-	list: monitorList,
-	get: monitorGet,
-	update: monitorUpdate,
-	delete: monitorDelete,
-	pause: monitorPause,
-	resume: monitorResume,
+	async create(
+		apiKey: string,
+		params: ApiMonitorCreateInput,
+	): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				"/monitor",
+				apiKey,
+				params,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async list(apiKey: string): Promise<ApiResult<ApiMonitorResponse[]>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse[]>("GET", "/monitor", apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"GET",
+				`/monitor/${id}`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async update(
+		apiKey: string,
+		id: string,
+		params: ApiMonitorUpdateInput,
+	): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"PATCH",
+				`/monitor/${id}`,
+				apiKey,
+				params,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async delete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"DELETE",
+				`/monitor/${id}`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async pause(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				`/monitor/${id}/pause`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async resume(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				`/monitor/${id}/resume`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
 };
