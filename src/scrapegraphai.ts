@@ -186,35 +186,31 @@ export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthRe
 	}
 }
 
-export async function getHistory(
-	apiKey: string,
-	params?: ApiHistoryFilter,
-): Promise<ApiResult<ApiHistoryPage>> {
-	try {
-		const qs = new URLSearchParams();
-		if (params?.page) qs.set("page", String(params.page));
-		if (params?.limit) qs.set("limit", String(params.limit));
-		if (params?.service) qs.set("service", params.service);
-		const query = qs.toString();
-		const path = query ? `/history?${query}` : "/history";
-		const { data, elapsedMs } = await request<ApiHistoryPage>("GET", path, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
+export const history = {
+	async list(apiKey: string, params?: ApiHistoryFilter): Promise<ApiResult<ApiHistoryPage>> {
+		try {
+			const qs = new URLSearchParams();
+			if (params?.page) qs.set("page", String(params.page));
+			if (params?.limit) qs.set("limit", String(params.limit));
+			if (params?.service) qs.set("service", params.service);
+			const query = qs.toString();
+			const path = query ? `/history?${query}` : "/history";
+			const { data, elapsedMs } = await request<ApiHistoryPage>("GET", path, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
 
-export async function getHistoryEntry(
-	apiKey: string,
-	id: string,
-): Promise<ApiResult<ApiHistoryEntry>> {
-	try {
-		const { data, elapsedMs } = await request<ApiHistoryEntry>("GET", `/history/${id}`, apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiHistoryEntry>> {
+		try {
+			const { data, elapsedMs } = await request<ApiHistoryEntry>("GET", `/history/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+};
 
 export const crawl = {
 	async start(apiKey: string, params: ApiCrawlRequest): Promise<ApiResult<ApiCrawlResponse>> {

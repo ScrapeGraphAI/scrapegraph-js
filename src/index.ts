@@ -5,8 +5,7 @@ export {
 	generateSchema,
 	getCredits,
 	checkHealth,
-	getHistory,
-	getHistoryEntry,
+	history,
 	crawl,
 	monitor,
 } from "./scrapegraphai.js";

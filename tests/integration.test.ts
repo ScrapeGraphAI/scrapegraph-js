@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { crawl, extract, getCredits, getHistory, scrape, search } from "../src/index.js";
+import { crawl, extract, getCredits, history, scrape, search } from "../src/index.js";
 
 const API_KEY = process.env.SGAI_API_KEY || "sgai-669918e5-55be-4752-a684-f6da788d1384";
 
@@ -73,9 +73,9 @@ describe("integration", () => {
 		expect(res.data?.results.length).toBeGreaterThan(0);
 	});
 
-	test("getHistory", async () => {
-		const res = await getHistory(API_KEY, { limit: 5 });
-		console.log("getHistory:", res.status, res.data?.pagination);
+	test("history.list", async () => {
+		const res = await history.list(API_KEY, { limit: 5 });
+		console.log("history.list:", res.status, res.data?.pagination);
 		expect(res.status).toBe("success");
 	});
 

@@ -765,29 +765,29 @@ describe("checkHealth", () => {
 	});
 });
 
-describe("getHistory", () => {
-	test("success without params", async () => {
+describe("history", () => {
+	test("list success without params", async () => {
 		const body = {
 			data: [],
 			pagination: { page: 1, limit: 20, total: 0 },
 		};
 		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
 
-		const res = await sdk.getHistory(API_KEY);
+		const res = await sdk.history.list(API_KEY);
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
 		expectRequest(0, "GET", "/history");
 	});
 
-	test("success with params", async () => {
+	test("list success with params", async () => {
 		const body = {
 			data: [],
 			pagination: { page: 2, limit: 10, total: 50 },
 		};
 		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
 
-		const res = await sdk.getHistory(API_KEY, { page: 2, limit: 10, service: "scrape" });
+		const res = await sdk.history.list(API_KEY, { page: 2, limit: 10, service: "scrape" });
 
 		expect(res.status).toBe("success");
 		const [url] = fetchSpy.mock.calls[0] as [string, RequestInit];
@@ -795,10 +795,8 @@ describe("getHistory", () => {
 		expect(url).toContain("limit=10");
 		expect(url).toContain("service=scrape");
 	});
-});
 
-describe("getHistoryEntry", () => {
-	test("success", async () => {
+	test("get success", async () => {
 		const body = {
 			id: "abc-123",
 			service: "scrape",
@@ -808,7 +806,7 @@ describe("getHistoryEntry", () => {
 		};
 		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
 
-		const res = await sdk.getHistoryEntry(API_KEY, "abc-123");
+		const res = await sdk.history.get(API_KEY, "abc-123");
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
