@@ -2,22 +2,20 @@ import { crawl } from "scrapegraph-js";
 
 const apiKey = process.env.SGAI_API_KEY!;
 
-const res = await crawl(
-	apiKey,
-	{
-		url: "https://scrapegraphai.com",
-		prompt: "Extract the main content from each page",
-		max_pages: 5,
-		depth: 2,
-		sitemap: true,
-	},
-	(status) => console.log(`Poll: ${status}`),
-);
+const startRes = await crawl.start(apiKey, {
+	url: "https://example.com",
+	maxPages: 5,
+	maxDepth: 2,
+});
 
-if (res.status === "success") {
-	console.log("Pages crawled:", res.data?.crawled_urls?.length);
-	console.log("Result:", JSON.stringify(res.data?.llm_result, null, 2));
-	console.log(`Took ${res.elapsedMs}ms`);
-} else {
-	console.error("Failed:", res.error);
+if (startRes.status !== "success") {
+	console.error("Failed to start:", startRes.error);
+	process.exit(1);
 }
+
+console.log("Crawl started:", startRes.data?.id);
+console.log("Status:", startRes.data?.status);
+
+const getRes = await crawl.get(apiKey, startRes.data!.id);
+console.log("\nProgress:", getRes.data?.finished, "/", getRes.data?.total);
+console.log("Pages:", getRes.data?.pages.map((p) => p.url));
