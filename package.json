@@ -16,8 +16,8 @@
 		"build": "tsup",
 		"lint": "biome check .",
 		"format": "biome format . --write",
-		"test": "bun test tests/",
-		"test:integration": "bun run integration_test.ts",
+		"test": "bun test tests/*.test.ts",
+		"test:integration": "bun test tests/*.spec.ts",
 		"check": "tsc --noEmit && biome check .",
 		"prepublishOnly": "tsup"
 	},
