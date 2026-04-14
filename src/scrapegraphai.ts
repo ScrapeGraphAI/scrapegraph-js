@@ -19,7 +19,7 @@ import type {
 	ApiScrapeResponse,
 	ApiSearchRequest,
 	ApiSearchResponse,
-} from "./types/index.js";
+} from "./types.js";
 
 const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/v2";
 const HEALTH_URL = process.env.SGAI_API_URL

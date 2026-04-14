@@ -256,13 +256,7 @@ export const apiMonitorUpdateSchema = z
 	})
 	.partial();
 
-export const apiCrawlStatusSchema = z.enum([
-	"running",
-	"completed",
-	"failed",
-	"cancelled",
-	"paused",
-]);
+export const apiCrawlStatusSchema = z.enum(["running", "completed", "failed", "paused", "deleted"]);
 
 export const apiCrawlPageStatusSchema = z.enum(["completed", "failed", "skipped"]);
 

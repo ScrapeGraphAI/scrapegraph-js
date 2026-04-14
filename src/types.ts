@@ -12,7 +12,7 @@ import type {
 	apiScrapeFormatEntrySchema,
 	apiScrapeRequestSchema,
 	apiSearchRequestSchema,
-} from "../schemas.js";
+} from "./schemas.js";
 
 export type ApiFetchConfig = z.infer<typeof apiFetchConfigSchema>;
 export type ApiFetchContentType = z.infer<typeof apiFetchContentTypeSchema>;
@@ -218,7 +218,7 @@ export interface ApiSearchResponse {
 	metadata: ApiSearchMetadata;
 }
 
-export type ApiCrawlStatus = "running" | "completed" | "failed" | "cancelled" | "paused";
+export type ApiCrawlStatus = "running" | "completed" | "failed" | "paused" | "deleted";
 export type ApiCrawlPageStatus = "completed" | "failed" | "skipped";
 
 export interface ApiCrawlPage {
@@ -307,7 +307,7 @@ export interface ApiMonitorResponse {
 }
 
 export type ApiHistoryService = "scrape" | "extract" | "schema" | "search" | "monitor" | "crawl";
-export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused";
+export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused" | "deleted";
 
 interface ApiHistoryBase {
 	id: string;

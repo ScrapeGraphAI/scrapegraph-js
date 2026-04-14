@@ -49,7 +49,7 @@ export type {
 	ApiTokenUsage,
 	ApiChunkerMetadata,
 	ApiBranding,
-} from "./types/index.js";
+} from "./types.js";
 
 export {
 	apiScrapeRequestSchema,
