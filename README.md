@@ -7,7 +7,7 @@
   <img src="media/banner.png" alt="ScrapeGraph JS SDK" style="width: 100%;">
 </p>
 
-Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com) v2.
+Official TypeScript SDK for the [ScrapeGraph AI API](https://scrapegraphai.com).
 
 ## Install
 
