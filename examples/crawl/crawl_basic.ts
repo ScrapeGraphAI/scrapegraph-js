@@ -4,7 +4,7 @@ import { ScrapeGraphAI } from "scrapegraph-js";
 const sgai = ScrapeGraphAI();
 
 const startRes = await sgai.crawl.start({
-	url: "https://example.com",
+	url: "https://scrapegraphai.com/",
 	maxPages: 5,
 	maxDepth: 2,
 });
@@ -12,10 +12,25 @@ const startRes = await sgai.crawl.start({
 if (startRes.status !== "success" || !startRes.data) {
 	console.error("Failed to start:", startRes.error);
 } else {
-	console.log("Crawl started:", startRes.data.id);
-	console.log("Status:", startRes.data.status);
+	const crawlId = startRes.data.id;
+	console.log("Crawl started:", crawlId);
 
-	const getRes = await sgai.crawl.get(startRes.data.id);
-	console.log("\nProgress:", getRes.data?.finished, "/", getRes.data?.total);
-	console.log("Pages:", getRes.data?.pages.map((p) => p.url));
+	let status = startRes.data.status;
+	while (status === "running") {
+		await new Promise((r) => setTimeout(r, 2000));
+		const getRes = await sgai.crawl.get(crawlId);
+		if (getRes.status !== "success" || !getRes.data) {
+			console.error("Failed to get status:", getRes.error);
+			break;
+		}
+		status = getRes.data.status;
+		console.log(`Progress: ${getRes.data.finished}/${getRes.data.total} - ${status}`);
+
+		if (status === "completed" || status === "failed") {
+			console.log("\nPages crawled:");
+			for (const page of getRes.data.pages) {
+				console.log(`  ${page.url} - ${page.status}`);
+			}
+		}
+	}
 }
