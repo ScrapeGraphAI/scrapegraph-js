@@ -21,15 +21,7 @@
 		"check": "tsc --noEmit && biome check .",
 		"prepublishOnly": "tsup"
 	},
-	"keywords": [
-		"scraping",
-		"ai",
-		"scrapegraph",
-		"typescript",
-		"sdk",
-		"web-scraping",
-		"api"
-	],
+	"keywords": ["scraping", "ai", "scrapegraph", "typescript", "sdk", "web-scraping", "api"],
 	"author": "ScrapeGraph Team",
 	"license": "MIT",
 	"repository": {
@@ -40,9 +32,7 @@
 	"engines": {
 		"node": ">=22"
 	},
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/bun": "^1.3.9",
