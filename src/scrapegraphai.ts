@@ -19,10 +19,7 @@ import type {
 	ApiSearchResponse,
 } from "./types.js";
 
-const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/v2";
-const HEALTH_URL = process.env.SGAI_API_URL
-	? `${process.env.SGAI_API_URL.replace(/\/v\d+$/, "")}`
-	: "https://api.scrapegraphai.com";
+const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/api/v2";
 
 function debug(label: string, data?: unknown) {
 	if (!env.debug) return;
@@ -86,7 +83,7 @@ async function request<T>(
 			...(body ? { "Content-Type": "application/json" } : {}),
 		},
 		body: body ? JSON.stringify(body) : undefined,
-		signal: AbortSignal.timeout(env.timeoutS * 1000),
+		signal: AbortSignal.timeout(env.timeout * 1000),
 	});
 
 	if (!res.ok) {
@@ -161,13 +158,7 @@ export async function getCredits(apiKey: string): Promise<ApiResult<ApiCreditsRe
 
 export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiHealthResponse>(
-			"GET",
-			"/api/v2/health",
-			apiKey,
-			undefined,
-			HEALTH_URL,
-		);
+		const { data, elapsedMs } = await request<ApiHealthResponse>("GET", "/health", apiKey);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);

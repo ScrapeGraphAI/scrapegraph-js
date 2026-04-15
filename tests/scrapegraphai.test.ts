@@ -2,10 +2,7 @@ import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import * as sdk from "../src/scrapegraphai.js";
 
 const API_KEY = "test-sgai-key";
-const BASE = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/v2";
-const HEALTH_BASE = process.env.SGAI_API_URL
-	? process.env.SGAI_API_URL.replace(/\/v\d+$/, "")
-	: "https://api.scrapegraphai.com";
+const BASE = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/api/v2";
 
 function json(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {
@@ -742,7 +739,7 @@ describe("checkHealth", () => {
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
-		expectRequest(0, "GET", "/api/v2/health", undefined, HEALTH_BASE);
+		expectRequest(0, "GET", "/health");
 	});
 });
 

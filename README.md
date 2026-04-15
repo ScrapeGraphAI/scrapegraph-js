@@ -218,9 +218,9 @@ const health = await sgai.healthy();
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `SGAI_API_KEY` | Your ScrapeGraphAI API key | — |
-| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/v2` |
+| `SGAI_API_URL` | Override API base URL | `https://api.scrapegraphai.com/api/v2` |
 | `SGAI_DEBUG` | Enable debug logging (`"1"`) | off |
-| `SGAI_TIMEOUT_S` | Request timeout in seconds | `120` |
+| `SGAI_TIMEOUT` | Request timeout in seconds | `120` |
 
 ## Development
 
