@@ -298,6 +298,28 @@ export interface ApiMonitorResponse {
 	updatedAt: string;
 }
 
+export type ApiMonitorTickStatus = "completed" | "failed" | "paused" | "running";
+
+export interface ApiMonitorTickEntry {
+	id: string;
+	status: ApiMonitorTickStatus;
+	createdAt: string;
+	elapsedMs: number;
+	changed: boolean;
+	diffs: ApiMonitorDiffs;
+	error?: string;
+}
+
+export interface ApiMonitorActivityResponse {
+	ticks: ApiMonitorTickEntry[];
+	nextCursor: string | null;
+}
+
+export interface ApiMonitorActivityParams {
+	limit?: number;
+	cursor?: string;
+}
+
 export type ApiHistoryService = "scrape" | "extract" | "search" | "monitor" | "crawl";
 export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused" | "deleted";
 

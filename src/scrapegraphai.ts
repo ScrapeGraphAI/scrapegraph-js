@@ -9,6 +9,8 @@ import type {
 	ApiHistoryEntry,
 	ApiHistoryFilter,
 	ApiHistoryPage,
+	ApiMonitorActivityParams,
+	ApiMonitorActivityResponse,
 	ApiMonitorCreateInput,
 	ApiMonitorResponse,
 	ApiMonitorUpdateInput,
@@ -342,6 +344,24 @@ export const monitor = {
 			return fail(err);
 		}
 	},
+
+	async activity(
+		apiKey: string,
+		id: string,
+		params?: ApiMonitorActivityParams,
+	): Promise<ApiResult<ApiMonitorActivityResponse>> {
+		try {
+			const qs = new URLSearchParams();
+			if (params?.limit) qs.set("limit", String(params.limit));
+			if (params?.cursor) qs.set("cursor", params.cursor);
+			const query = qs.toString();
+			const path = query ? `/monitor/${id}/activity?${query}` : `/monitor/${id}/activity`;
+			const { data, elapsedMs } = await request<ApiMonitorActivityResponse>("GET", path, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
 };
 
 export interface ScrapeGraphAIInput {
@@ -381,6 +401,8 @@ export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
 			delete: (id: string) => monitor.delete(key, id),
 			pause: (id: string) => monitor.pause(key, id),
 			resume: (id: string) => monitor.resume(key, id),
+			activity: (id: string, params?: ApiMonitorActivityParams) =>
+				monitor.activity(key, id, params),
 		},
 	};
 }
