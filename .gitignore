@@ -7,4 +7,3 @@ bun.lock
 .env
 doc/
 .claude/
-CLAUDE.md

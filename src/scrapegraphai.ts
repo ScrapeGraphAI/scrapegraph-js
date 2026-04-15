@@ -163,7 +163,7 @@ export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthRe
 	try {
 		const { data, elapsedMs } = await request<ApiHealthResponse>(
 			"GET",
-			"/healthz",
+			"/api/v2/health",
 			apiKey,
 			undefined,
 			HEALTH_URL,

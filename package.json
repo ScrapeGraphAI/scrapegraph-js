@@ -19,7 +19,8 @@
 		"test": "bun test tests/*.test.ts",
 		"test:integration": "bun test tests/*.spec.ts",
 		"check": "tsc --noEmit && biome check .",
-		"prepublishOnly": "tsup"
+		"prepublishOnly": "tsup",
+		"playground": "bun --env-file=.env scripts/playground.ts"
 	},
 	"keywords": ["scraping", "ai", "scrapegraph", "typescript", "sdk", "web-scraping", "api"],
 	"author": "ScrapeGraph Team",

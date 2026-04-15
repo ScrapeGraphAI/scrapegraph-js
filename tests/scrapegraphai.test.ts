@@ -742,7 +742,7 @@ describe("checkHealth", () => {
 
 		expect(res.status).toBe("success");
 		expect(res.data).toEqual(body);
-		expectRequest(0, "GET", "/healthz", undefined, HEALTH_BASE);
+		expectRequest(0, "GET", "/api/v2/health", undefined, HEALTH_BASE);
 	});
 });
 
