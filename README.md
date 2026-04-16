@@ -4,7 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 <p align="center">
-  <img src="media/banner.png" alt="ScrapeGraphAI JS SDK" style="width: 100%;">
+  <a href="https://scrapegraphai.com">
+    <img src="media/banner.png" alt="ScrapeGraphAI JS SDK" style="width: 100%;">
+  </a>
 </p>
 
 Official TypeScript SDK for the [ScrapeGraphAI AI API](https://scrapegraphai.com).
