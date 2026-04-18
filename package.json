@@ -19,7 +19,11 @@
 		"test": "bun test tests/",
 		"test:integration": "bun run integration_test.ts",
 		"check": "tsc --noEmit && biome check .",
-		"prepublishOnly": "tsup"
+		"prepublishOnly": "tsup",
+		"prepare": "husky"
+	},
+	"lint-staged": {
+		"*.{js,ts,jsx,tsx,json}": ["biome check --write --no-errors-on-unmatched"]
 	},
 	"keywords": ["scraping", "ai", "scrapegraph", "typescript", "sdk", "web-scraping", "api"],
 	"author": "ScrapeGraph Team",
@@ -37,6 +41,8 @@
 		"@biomejs/biome": "^1.9.4",
 		"@types/bun": "^1.3.9",
 		"@types/node": "^22.13.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
 		"tsup": "^8.3.6",
 		"typescript": "^5.8.2"
 	}
