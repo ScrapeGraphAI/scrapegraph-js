@@ -3,19 +3,25 @@ import { ScrapeGraphAI } from "scrapegraph-js";
 // reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
 const sgai = ScrapeGraphAI();
 
-const startRes = await sgai.crawl.start({
+const res = await sgai.crawl.start({
 	url: "https://scrapegraphai.com/",
-	maxPages: 5,
+	formats: [
+		{ type: "markdown", mode: "reader" },
+		{ type: "screenshot", width: 1280, height: 720 },
+	],
+	maxPages: 10,
 	maxDepth: 2,
+	includePatterns: ["/blog/*", "/docs/*"],
+	excludePatterns: ["/admin/*"],
 });
 
-if (startRes.status !== "success" || !startRes.data) {
-	console.error("Failed to start:", startRes.error);
+if (res.status !== "success" || !res.data) {
+	console.error("Failed to start:", res.error);
 } else {
-	const crawlId = startRes.data.id;
+	const crawlId = res.data.id;
 	console.log("Crawl started:", crawlId);
 
-	let status = startRes.data.status;
+	let status = res.data.status;
 	while (status === "running") {
 		await new Promise((r) => setTimeout(r, 2000));
 		const getRes = await sgai.crawl.get(crawlId);

@@ -1,3 +1,4 @@
+scripts/
 node_modules
 dist/
 .DS_Store
@@ -5,4 +6,4 @@ bun.lock
 *.tsbuildinfo
 .env
 doc/
-.DS_Store
+.claude/

@@ -1,20 +1,18 @@
-import { history, HISTORY_SERVICES } from "scrapegraph-js";
+import { ScrapeGraphAI } from "scrapegraph-js";
 
-const apiKey = process.env.SGAI_API_KEY!;
+// reads SGAI_API_KEY from env, or pass explicitly: ScrapeGraphAI({ apiKey: "..." })
+const sgai = ScrapeGraphAI();
 
-console.log("Available services:", HISTORY_SERVICES.join(", "));
-
-const res = await history(apiKey, {
-	service: "smartscraper",
-	page: 1,
-	page_size: 5,
+const res = await sgai.history.list({
+	service: "scrape",
+	limit: 5,
 });
 
 if (res.status === "success") {
-	console.log(`\nTotal requests: ${res.data?.total_count}`);
-	console.log(`Page ${res.data?.page} of ${Math.ceil((res.data?.total_count ?? 0) / (res.data?.page_size ?? 10))}\n`);
-	for (const entry of res.data?.requests ?? []) {
-		console.log(`  [${entry.status}] ${entry.request_id}`);
+	console.log(`Total: ${res.data?.pagination.total}`);
+	console.log(`Page ${res.data?.pagination.page}\n`);
+	for (const entry of res.data?.data ?? []) {
+		console.log(`  [${entry.status}] ${entry.service} - ${entry.id}`);
 	}
 } else {
 	console.error("Failed:", res.error);

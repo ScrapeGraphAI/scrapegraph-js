@@ -1,33 +1,27 @@
 import { env } from "./env.js";
 import type {
-	AgenticScraperParams,
-	AgenticScraperResponse,
+	ApiCrawlRequest,
+	ApiCrawlResponse,
+	ApiCreditsResponse,
+	ApiExtractRequest,
+	ApiExtractResponse,
+	ApiHealthResponse,
+	ApiHistoryEntry,
+	ApiHistoryFilter,
+	ApiHistoryPage,
+	ApiMonitorActivityParams,
+	ApiMonitorActivityResponse,
+	ApiMonitorCreateInput,
+	ApiMonitorResponse,
+	ApiMonitorUpdateInput,
 	ApiResult,
-	CrawlParams,
-	CrawlResponse,
-	CreditsResponse,
-	GenerateSchemaParams,
-	GenerateSchemaResponse,
-	HealthResponse,
-	HistoryParams,
-	HistoryResponse,
-	MarkdownifyParams,
-	MarkdownifyResponse,
-	ScrapeParams,
-	ScrapeResponse,
-	SearchScraperParams,
-	SearchScraperResponse,
-	SitemapParams,
-	SitemapResponse,
-	SmartScraperParams,
-	SmartScraperResponse,
-} from "./types/index.js";
+	ApiScrapeRequest,
+	ApiScrapeResponse,
+	ApiSearchRequest,
+	ApiSearchResponse,
+} from "./types.js";
 
-const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/v1";
-const HEALTH_URL = process.env.SGAI_API_URL
-	? `${process.env.SGAI_API_URL.replace(/\/v\d+$/, "")}`
-	: "https://api.scrapegraphai.com";
-const POLL_INTERVAL_MS = 3000;
+const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/api/v2";
 
 function debug(label: string, data?: unknown) {
 	if (!env.debug) return;
@@ -65,10 +59,16 @@ function mapHttpError(status: number): string {
 	}
 }
 
+function parseServerTiming(header: string | null): number | null {
+	if (!header) return null;
+	const match = header.match(/dur=(\d+(?:\.\d+)?)/);
+	return match ? Math.round(Number.parseFloat(match[1])) : null;
+}
+
 type RequestResult<T> = { data: T; elapsedMs: number };
 
 async function request<T>(
-	method: "GET" | "POST",
+	method: "GET" | "POST" | "PATCH" | "DELETE",
 	path: string,
 	apiKey: string,
 	body?: object,
@@ -85,7 +85,7 @@ async function request<T>(
 			...(body ? { "Content-Type": "application/json" } : {}),
 		},
 		body: body ? JSON.stringify(body) : undefined,
-		signal: AbortSignal.timeout(env.timeoutS * 1000),
+		signal: AbortSignal.timeout(env.timeout * 1000),
 	});
 
 	if (!res.ok) {
@@ -102,241 +102,309 @@ async function request<T>(
 	}
 
 	const data = (await res.json()) as T;
-	const elapsedMs = Math.round(performance.now() - start);
+	const serverTiming = parseServerTiming(res.headers.get("Server-Timing"));
+	const elapsedMs = serverTiming ?? Math.round(performance.now() - start);
 	debug(`← ${res.status} (${elapsedMs}ms)`, data);
 	return { data, elapsedMs };
 }
 
-type PollResponse = {
-	status: string;
-	error?: string;
-	[key: string]: unknown;
+export async function scrape(
+	apiKey: string,
+	params: ApiScrapeRequest,
+): Promise<ApiResult<ApiScrapeResponse>> {
+	try {
+		const { data, elapsedMs } = await request<ApiScrapeResponse>("POST", "/scrape", apiKey, params);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export async function extract(
+	apiKey: string,
+	params: ApiExtractRequest,
+): Promise<ApiResult<ApiExtractResponse>> {
+	try {
+		const { data, elapsedMs } = await request<ApiExtractResponse>(
+			"POST",
+			"/extract",
+			apiKey,
+			params,
+		);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export async function search(
+	apiKey: string,
+	params: ApiSearchRequest,
+): Promise<ApiResult<ApiSearchResponse>> {
+	try {
+		const { data, elapsedMs } = await request<ApiSearchResponse>("POST", "/search", apiKey, params);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export async function getCredits(apiKey: string): Promise<ApiResult<ApiCreditsResponse>> {
+	try {
+		const { data, elapsedMs } = await request<ApiCreditsResponse>("GET", "/credits", apiKey);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthResponse>> {
+	try {
+		const { data, elapsedMs } = await request<ApiHealthResponse>("GET", "/health", apiKey);
+		return ok(data, elapsedMs);
+	} catch (err) {
+		return fail(err);
+	}
+}
+
+export const history = {
+	async list(apiKey: string, params?: ApiHistoryFilter): Promise<ApiResult<ApiHistoryPage>> {
+		try {
+			const qs = new URLSearchParams();
+			if (params?.page) qs.set("page", String(params.page));
+			if (params?.limit) qs.set("limit", String(params.limit));
+			if (params?.service) qs.set("service", params.service);
+			const query = qs.toString();
+			const path = query ? `/history?${query}` : "/history";
+			const { data, elapsedMs } = await request<ApiHistoryPage>("GET", path, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiHistoryEntry>> {
+		try {
+			const { data, elapsedMs } = await request<ApiHistoryEntry>("GET", `/history/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
 };
 
-function isDone(status: string) {
-	return status === "completed" || status === "done" || status === "success";
-}
-
-async function pollUntilDone(
-	path: string,
-	id: string,
-	apiKey: string,
-	onPoll?: (status: string) => void,
-): Promise<RequestResult<PollResponse>> {
-	const deadline = Date.now() + env.timeoutS * 1000;
-	let totalMs = 0;
-
-	while (Date.now() < deadline) {
-		const { data, elapsedMs } = await request<PollResponse>("GET", `${path}/${id}`, apiKey);
-		totalMs += elapsedMs;
-		onPoll?.(data.status);
-
-		if (isDone(data.status)) return { data, elapsedMs: totalMs };
-		if (data.status === "failed") throw new Error(data.error ?? "Job failed");
-
-		await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-	}
-
-	throw new Error("Polling timed out");
-}
-
-function unwrapResult(data: PollResponse): PollResponse {
-	if (data.result && typeof data.result === "object" && !Array.isArray(data.result)) {
-		const inner = data.result as Record<string, unknown>;
-		if (inner.status || inner.pages || inner.crawled_urls) {
-			return { ...inner, status: String(inner.status ?? data.status) } as PollResponse;
+export const crawl = {
+	async start(apiKey: string, params: ApiCrawlRequest): Promise<ApiResult<ApiCrawlResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiCrawlResponse>("POST", "/crawl", apiKey, params);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
 		}
-	}
-	return data;
+	},
+
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiCrawlResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiCrawlResponse>("GET", `/crawl/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async stop(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"POST",
+				`/crawl/${id}/stop`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async resume(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"POST",
+				`/crawl/${id}/resume`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async delete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>("DELETE", `/crawl/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+};
+
+export const monitor = {
+	async create(
+		apiKey: string,
+		params: ApiMonitorCreateInput,
+	): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				"/monitor",
+				apiKey,
+				params,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async list(apiKey: string): Promise<ApiResult<ApiMonitorResponse[]>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse[]>("GET", "/monitor", apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async get(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"GET",
+				`/monitor/${id}`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async update(
+		apiKey: string,
+		id: string,
+		params: ApiMonitorUpdateInput,
+	): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"PATCH",
+				`/monitor/${id}`,
+				apiKey,
+				params,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async delete(apiKey: string, id: string): Promise<ApiResult<{ ok: boolean }>> {
+		try {
+			const { data, elapsedMs } = await request<{ ok: boolean }>(
+				"DELETE",
+				`/monitor/${id}`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async pause(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				`/monitor/${id}/pause`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async resume(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+		try {
+			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+				"POST",
+				`/monitor/${id}/resume`,
+				apiKey,
+			);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async activity(
+		apiKey: string,
+		id: string,
+		params?: ApiMonitorActivityParams,
+	): Promise<ApiResult<ApiMonitorActivityResponse>> {
+		try {
+			const qs = new URLSearchParams();
+			if (params?.limit) qs.set("limit", String(params.limit));
+			if (params?.cursor) qs.set("cursor", params.cursor);
+			const query = qs.toString();
+			const path = query ? `/monitor/${id}/activity?${query}` : `/monitor/${id}/activity`;
+			const { data, elapsedMs } = await request<ApiMonitorActivityResponse>("GET", path, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+};
+
+export interface ScrapeGraphAIInput {
+	apiKey?: string;
 }
 
-async function submitAndPoll<T>(
-	path: string,
-	apiKey: string,
-	body: object,
-	idField: string,
-	onPoll?: (status: string) => void,
-): Promise<RequestResult<T>> {
-	const { data: res, elapsedMs } = await request<PollResponse>("POST", path, apiKey, body);
-	if (isDone(res.status)) return { data: unwrapResult(res) as unknown as T, elapsedMs };
-	const id = res[idField];
-	if (typeof id !== "string") throw new Error(`Missing ${idField} in response`);
-	const poll = await pollUntilDone(path, id, apiKey, onPoll);
+function resolveApiKey(opts?: ScrapeGraphAIInput): string {
+	const key = opts?.apiKey ?? process.env.SGAI_API_KEY;
+	if (!key) throw new Error("API key required: pass { apiKey } or set SGAI_API_KEY env var");
+	return key;
+}
+
+export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
+	const key = resolveApiKey(opts);
 	return {
-		data: unwrapResult(poll.data) as unknown as T,
-		elapsedMs: elapsedMs + poll.elapsedMs,
+		scrape: (params: ApiScrapeRequest) => scrape(key, params),
+		extract: (params: ApiExtractRequest) => extract(key, params),
+		search: (params: ApiSearchRequest) => search(key, params),
+		credits: () => getCredits(key),
+		healthy: () => checkHealth(key),
+		history: {
+			list: (params?: ApiHistoryFilter) => history.list(key, params),
+			get: (id: string) => history.get(key, id),
+		},
+		crawl: {
+			start: (params: ApiCrawlRequest) => crawl.start(key, params),
+			get: (id: string) => crawl.get(key, id),
+			stop: (id: string) => crawl.stop(key, id),
+			resume: (id: string) => crawl.resume(key, id),
+			delete: (id: string) => crawl.delete(key, id),
+		},
+		monitor: {
+			create: (params: ApiMonitorCreateInput) => monitor.create(key, params),
+			list: () => monitor.list(key),
+			get: (id: string) => monitor.get(key, id),
+			update: (id: string, params: ApiMonitorUpdateInput) => monitor.update(key, id, params),
+			delete: (id: string) => monitor.delete(key, id),
+			pause: (id: string) => monitor.pause(key, id),
+			resume: (id: string) => monitor.resume(key, id),
+			activity: (id: string, params?: ApiMonitorActivityParams) =>
+				monitor.activity(key, id, params),
+		},
 	};
 }
 
-export async function smartScraper(
-	apiKey: string,
-	params: SmartScraperParams,
-): Promise<ApiResult<SmartScraperResponse>> {
-	try {
-		const { data, elapsedMs } = await request<SmartScraperResponse>(
-			"POST",
-			"/smartscraper",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function searchScraper(
-	apiKey: string,
-	params: SearchScraperParams,
-): Promise<ApiResult<SearchScraperResponse>> {
-	try {
-		const { data, elapsedMs } = await request<SearchScraperResponse>(
-			"POST",
-			"/searchscraper",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function markdownify(
-	apiKey: string,
-	params: MarkdownifyParams,
-): Promise<ApiResult<MarkdownifyResponse>> {
-	try {
-		const { data, elapsedMs } = await request<MarkdownifyResponse>(
-			"POST",
-			"/markdownify",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function scrape(
-	apiKey: string,
-	params: ScrapeParams,
-): Promise<ApiResult<ScrapeResponse>> {
-	try {
-		const { data, elapsedMs } = await request<ScrapeResponse>("POST", "/scrape", apiKey, params);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function crawl(
-	apiKey: string,
-	params: CrawlParams,
-	onPoll?: (status: string) => void,
-): Promise<ApiResult<CrawlResponse>> {
-	try {
-		const { data, elapsedMs } = await submitAndPoll<CrawlResponse>(
-			"/crawl",
-			apiKey,
-			params,
-			"task_id",
-			onPoll,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function agenticScraper(
-	apiKey: string,
-	params: AgenticScraperParams,
-): Promise<ApiResult<AgenticScraperResponse>> {
-	try {
-		const { data, elapsedMs } = await request<AgenticScraperResponse>(
-			"POST",
-			"/agentic-scrapper",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function generateSchema(
-	apiKey: string,
-	params: GenerateSchemaParams,
-): Promise<ApiResult<GenerateSchemaResponse>> {
-	try {
-		const { data, elapsedMs } = await request<GenerateSchemaResponse>(
-			"POST",
-			"/generate_schema",
-			apiKey,
-			params,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function sitemap(
-	apiKey: string,
-	params: SitemapParams,
-): Promise<ApiResult<SitemapResponse>> {
-	try {
-		const { data, elapsedMs } = await request<SitemapResponse>("POST", "/sitemap", apiKey, params);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function getCredits(apiKey: string): Promise<ApiResult<CreditsResponse>> {
-	try {
-		const { data, elapsedMs } = await request<CreditsResponse>("GET", "/credits", apiKey);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function checkHealth(apiKey: string): Promise<ApiResult<HealthResponse>> {
-	try {
-		const { data, elapsedMs } = await request<HealthResponse>(
-			"GET",
-			"/healthz",
-			apiKey,
-			undefined,
-			HEALTH_URL,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
-
-export async function history(
-	apiKey: string,
-	params: HistoryParams,
-): Promise<ApiResult<HistoryResponse>> {
-	try {
-		const page = params.page ?? 1;
-		const pageSize = params.page_size ?? 10;
-		const qs = new URLSearchParams();
-		qs.set("page", String(page));
-		qs.set("page_size", String(pageSize));
-		const { data, elapsedMs } = await request<HistoryResponse>(
-			"GET",
-			`/history/${params.service}?${qs}`,
-			apiKey,
-		);
-		return ok(data, elapsedMs);
-	} catch (err) {
-		return fail(err);
-	}
-}
+export type ScrapeGraphAIClient = ReturnType<typeof ScrapeGraphAI>;

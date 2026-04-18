@@ -1,6 +1,6 @@
 {
 	"name": "scrapegraph-js",
-	"version": "1.0.1",
+	"version": "2.0.0",
 	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API — smart web scraping powered by AI",
 	"type": "module",
 	"main": "dist/index.js",
@@ -16,10 +16,11 @@
 		"build": "tsup",
 		"lint": "biome check .",
 		"format": "biome format . --write",
-		"test": "bun test tests/",
-		"test:integration": "bun run integration_test.ts",
+		"test": "bun test tests/*.test.ts",
+		"test:integration": "bun test tests/*.spec.ts",
 		"check": "tsc --noEmit && biome check .",
 		"prepublishOnly": "tsup",
+		"playground": "bun --env-file=.env scripts/playground.ts",
 		"prepare": "husky"
 	},
 	"lint-staged": {
@@ -45,5 +46,8 @@
 		"lint-staged": "^16.4.0",
 		"tsup": "^8.3.6",
 		"typescript": "^5.8.2"
+	},
+	"dependencies": {
+		"zod": "^4.3.6"
 	}
 }
