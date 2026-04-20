@@ -2,7 +2,7 @@ import { afterEach, describe, expect, spyOn, test } from "bun:test";
 import * as sdk from "../src/scrapegraphai.js";
 
 const API_KEY = "test-sgai-key";
-const BASE = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/api/v2";
+const BASE = process.env.SGAI_API_URL || "https://v2-api.scrapegraphai.com/api";
 
 function json(body: unknown, status = 200): Response {
 	return new Response(JSON.stringify(body), {
