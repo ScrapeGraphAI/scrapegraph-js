@@ -21,7 +21,7 @@ import type {
 	ApiSearchResponse,
 } from "./types.js";
 
-const BASE_URL = process.env.SGAI_API_URL || "https://api.scrapegraphai.com/api/v2";
+const BASE_URL = process.env.SGAI_API_URL || "https://v2-api.scrapegraphai.com/api/v2";
 
 function debug(label: string, data?: unknown) {
 	if (!env.debug) return;
