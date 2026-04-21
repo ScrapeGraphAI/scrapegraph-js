@@ -1,24 +1,24 @@
 import { env } from "./env.js";
 import type {
-	ApiCrawlRequest,
-	ApiCrawlResponse,
-	ApiCreditsResponse,
-	ApiExtractRequest,
-	ApiExtractResponse,
-	ApiHealthResponse,
-	ApiHistoryEntry,
-	ApiHistoryFilter,
-	ApiHistoryPage,
-	ApiMonitorActivityParams,
-	ApiMonitorActivityResponse,
-	ApiMonitorCreateInput,
-	ApiMonitorResponse,
-	ApiMonitorUpdateInput,
 	ApiResult,
-	ApiScrapeRequest,
-	ApiScrapeResponse,
-	ApiSearchRequest,
-	ApiSearchResponse,
+	CrawlRequest,
+	CrawlResponse,
+	CreditsResponse,
+	ExtractRequest,
+	ExtractResponse,
+	HealthResponse,
+	HistoryEntry,
+	HistoryFilter,
+	HistoryPage,
+	MonitorActivityRequest,
+	MonitorActivityResponse,
+	MonitorCreateRequest,
+	MonitorResponse,
+	MonitorUpdateRequest,
+	ScrapeRequest,
+	ScrapeResponse,
+	SearchRequest,
+	SearchResponse,
 } from "./types.js";
 
 const BASE_URL = process.env.SGAI_API_URL || "https://v2-api.scrapegraphai.com/api";
@@ -110,10 +110,10 @@ async function request<T>(
 
 export async function scrape(
 	apiKey: string,
-	params: ApiScrapeRequest,
-): Promise<ApiResult<ApiScrapeResponse>> {
+	params: ScrapeRequest,
+): Promise<ApiResult<ScrapeResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiScrapeResponse>("POST", "/scrape", apiKey, params);
+		const { data, elapsedMs } = await request<ScrapeResponse>("POST", "/scrape", apiKey, params);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -122,15 +122,10 @@ export async function scrape(
 
 export async function extract(
 	apiKey: string,
-	params: ApiExtractRequest,
-): Promise<ApiResult<ApiExtractResponse>> {
+	params: ExtractRequest,
+): Promise<ApiResult<ExtractResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiExtractResponse>(
-			"POST",
-			"/extract",
-			apiKey,
-			params,
-		);
+		const { data, elapsedMs } = await request<ExtractResponse>("POST", "/extract", apiKey, params);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -139,28 +134,28 @@ export async function extract(
 
 export async function search(
 	apiKey: string,
-	params: ApiSearchRequest,
-): Promise<ApiResult<ApiSearchResponse>> {
+	params: SearchRequest,
+): Promise<ApiResult<SearchResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiSearchResponse>("POST", "/search", apiKey, params);
+		const { data, elapsedMs } = await request<SearchResponse>("POST", "/search", apiKey, params);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
 	}
 }
 
-export async function getCredits(apiKey: string): Promise<ApiResult<ApiCreditsResponse>> {
+export async function getCredits(apiKey: string): Promise<ApiResult<CreditsResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiCreditsResponse>("GET", "/credits", apiKey);
+		const { data, elapsedMs } = await request<CreditsResponse>("GET", "/credits", apiKey);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
 	}
 }
 
-export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthResponse>> {
+export async function checkHealth(apiKey: string): Promise<ApiResult<HealthResponse>> {
 	try {
-		const { data, elapsedMs } = await request<ApiHealthResponse>("GET", "/health", apiKey);
+		const { data, elapsedMs } = await request<HealthResponse>("GET", "/health", apiKey);
 		return ok(data, elapsedMs);
 	} catch (err) {
 		return fail(err);
@@ -168,7 +163,7 @@ export async function checkHealth(apiKey: string): Promise<ApiResult<ApiHealthRe
 }
 
 export const history = {
-	async list(apiKey: string, params?: ApiHistoryFilter): Promise<ApiResult<ApiHistoryPage>> {
+	async list(apiKey: string, params?: HistoryFilter): Promise<ApiResult<HistoryPage>> {
 		try {
 			const qs = new URLSearchParams();
 			if (params?.page) qs.set("page", String(params.page));
@@ -176,16 +171,16 @@ export const history = {
 			if (params?.service) qs.set("service", params.service);
 			const query = qs.toString();
 			const path = query ? `/history?${query}` : "/history";
-			const { data, elapsedMs } = await request<ApiHistoryPage>("GET", path, apiKey);
+			const { data, elapsedMs } = await request<HistoryPage>("GET", path, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
 		}
 	},
 
-	async get(apiKey: string, id: string): Promise<ApiResult<ApiHistoryEntry>> {
+	async get(apiKey: string, id: string): Promise<ApiResult<HistoryEntry>> {
 		try {
-			const { data, elapsedMs } = await request<ApiHistoryEntry>("GET", `/history/${id}`, apiKey);
+			const { data, elapsedMs } = await request<HistoryEntry>("GET", `/history/${id}`, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
@@ -194,18 +189,18 @@ export const history = {
 };
 
 export const crawl = {
-	async start(apiKey: string, params: ApiCrawlRequest): Promise<ApiResult<ApiCrawlResponse>> {
+	async start(apiKey: string, params: CrawlRequest): Promise<ApiResult<CrawlResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiCrawlResponse>("POST", "/crawl", apiKey, params);
+			const { data, elapsedMs } = await request<CrawlResponse>("POST", "/crawl", apiKey, params);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
 		}
 	},
 
-	async get(apiKey: string, id: string): Promise<ApiResult<ApiCrawlResponse>> {
+	async get(apiKey: string, id: string): Promise<ApiResult<CrawlResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiCrawlResponse>("GET", `/crawl/${id}`, apiKey);
+			const { data, elapsedMs } = await request<CrawlResponse>("GET", `/crawl/${id}`, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
@@ -249,12 +244,9 @@ export const crawl = {
 };
 
 export const monitor = {
-	async create(
-		apiKey: string,
-		params: ApiMonitorCreateInput,
-	): Promise<ApiResult<ApiMonitorResponse>> {
+	async create(apiKey: string, params: MonitorCreateRequest): Promise<ApiResult<MonitorResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+			const { data, elapsedMs } = await request<MonitorResponse>(
 				"POST",
 				"/monitor",
 				apiKey,
@@ -266,22 +258,18 @@ export const monitor = {
 		}
 	},
 
-	async list(apiKey: string): Promise<ApiResult<ApiMonitorResponse[]>> {
+	async list(apiKey: string): Promise<ApiResult<MonitorResponse[]>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse[]>("GET", "/monitor", apiKey);
+			const { data, elapsedMs } = await request<MonitorResponse[]>("GET", "/monitor", apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
 		}
 	},
 
-	async get(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+	async get(apiKey: string, id: string): Promise<ApiResult<MonitorResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse>(
-				"GET",
-				`/monitor/${id}`,
-				apiKey,
-			);
+			const { data, elapsedMs } = await request<MonitorResponse>("GET", `/monitor/${id}`, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
@@ -291,10 +279,10 @@ export const monitor = {
 	async update(
 		apiKey: string,
 		id: string,
-		params: ApiMonitorUpdateInput,
-	): Promise<ApiResult<ApiMonitorResponse>> {
+		params: MonitorUpdateRequest,
+	): Promise<ApiResult<MonitorResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+			const { data, elapsedMs } = await request<MonitorResponse>(
 				"PATCH",
 				`/monitor/${id}`,
 				apiKey,
@@ -319,9 +307,9 @@ export const monitor = {
 		}
 	},
 
-	async pause(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+	async pause(apiKey: string, id: string): Promise<ApiResult<MonitorResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+			const { data, elapsedMs } = await request<MonitorResponse>(
 				"POST",
 				`/monitor/${id}/pause`,
 				apiKey,
@@ -332,9 +320,9 @@ export const monitor = {
 		}
 	},
 
-	async resume(apiKey: string, id: string): Promise<ApiResult<ApiMonitorResponse>> {
+	async resume(apiKey: string, id: string): Promise<ApiResult<MonitorResponse>> {
 		try {
-			const { data, elapsedMs } = await request<ApiMonitorResponse>(
+			const { data, elapsedMs } = await request<MonitorResponse>(
 				"POST",
 				`/monitor/${id}/resume`,
 				apiKey,
@@ -348,15 +336,15 @@ export const monitor = {
 	async activity(
 		apiKey: string,
 		id: string,
-		params?: ApiMonitorActivityParams,
-	): Promise<ApiResult<ApiMonitorActivityResponse>> {
+		params?: MonitorActivityRequest,
+	): Promise<ApiResult<MonitorActivityResponse>> {
 		try {
 			const qs = new URLSearchParams();
 			if (params?.limit) qs.set("limit", String(params.limit));
 			if (params?.cursor) qs.set("cursor", params.cursor);
 			const query = qs.toString();
 			const path = query ? `/monitor/${id}/activity?${query}` : `/monitor/${id}/activity`;
-			const { data, elapsedMs } = await request<ApiMonitorActivityResponse>("GET", path, apiKey);
+			const { data, elapsedMs } = await request<MonitorActivityResponse>("GET", path, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
@@ -377,32 +365,31 @@ function resolveApiKey(opts?: ScrapeGraphAIInput): string {
 export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
 	const key = resolveApiKey(opts);
 	return {
-		scrape: (params: ApiScrapeRequest) => scrape(key, params),
-		extract: (params: ApiExtractRequest) => extract(key, params),
-		search: (params: ApiSearchRequest) => search(key, params),
+		scrape: (params: ScrapeRequest) => scrape(key, params),
+		extract: (params: ExtractRequest) => extract(key, params),
+		search: (params: SearchRequest) => search(key, params),
 		credits: () => getCredits(key),
 		healthy: () => checkHealth(key),
 		history: {
-			list: (params?: ApiHistoryFilter) => history.list(key, params),
+			list: (params?: HistoryFilter) => history.list(key, params),
 			get: (id: string) => history.get(key, id),
 		},
 		crawl: {
-			start: (params: ApiCrawlRequest) => crawl.start(key, params),
+			start: (params: CrawlRequest) => crawl.start(key, params),
 			get: (id: string) => crawl.get(key, id),
 			stop: (id: string) => crawl.stop(key, id),
 			resume: (id: string) => crawl.resume(key, id),
 			delete: (id: string) => crawl.delete(key, id),
 		},
 		monitor: {
-			create: (params: ApiMonitorCreateInput) => monitor.create(key, params),
+			create: (params: MonitorCreateRequest) => monitor.create(key, params),
 			list: () => monitor.list(key),
 			get: (id: string) => monitor.get(key, id),
-			update: (id: string, params: ApiMonitorUpdateInput) => monitor.update(key, id, params),
+			update: (id: string, params: MonitorUpdateRequest) => monitor.update(key, id, params),
 			delete: (id: string) => monitor.delete(key, id),
 			pause: (id: string) => monitor.pause(key, id),
 			resume: (id: string) => monitor.resume(key, id),
-			activity: (id: string, params?: ApiMonitorActivityParams) =>
-				monitor.activity(key, id, params),
+			activity: (id: string, params?: MonitorActivityRequest) => monitor.activity(key, id, params),
 		},
 	};
 }
