@@ -46,7 +46,6 @@ export type {
 	FormatResponseMap,
 	FormatType,
 	HealthResponse,
-	HealthServices,
 	HistoryEntry,
 	HistoryFilter,
 	HistoryPage,

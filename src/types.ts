@@ -411,15 +411,9 @@ export interface CreditsResponse {
 	jobs: CreditsJobs;
 }
 
-export interface HealthServices {
-	redis: "ok" | "down";
-	db: "ok" | "down";
-}
-
 export interface HealthResponse {
-	status: string;
+	status: "ok" | "degraded";
 	uptime: number;
-	services?: HealthServices;
 }
 
 export interface ApiResult<T> {
