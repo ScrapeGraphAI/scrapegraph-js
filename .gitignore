@@ -6,4 +6,5 @@ bun.lock
 *.tsbuildinfo
 .env
 doc/
-.claude/
+.claude/*
+!.claude/skills/
