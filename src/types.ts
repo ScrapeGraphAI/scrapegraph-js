@@ -1,32 +1,46 @@
 import type { z } from "zod";
 import type {
-	apiCrawlRequestSchema,
-	apiExtractRequestBaseSchema,
-	apiFetchConfigSchema,
-	apiFetchContentTypeSchema,
-	apiHistoryFilterSchema,
-	apiHtmlModeSchema,
-	apiMonitorCreateSchema,
-	apiMonitorUpdateSchema,
-	apiScrapeFormatEntrySchema,
-	apiScrapeRequestSchema,
-	apiSearchRequestSchema,
+	crawlRequestSchema,
+	extractRequestSchema,
+	fetchConfigSchema,
+	fetchContentTypeSchema,
+	fetchModeSchema,
+	formatConfigSchema,
+	historyFilterSchema,
+	htmlModeSchema,
+	mockConfigSchema,
+	monitorActivityRequestSchema,
+	monitorCreateRequestSchema,
+	monitorUpdateRequestSchema,
+	scrapeRequestSchema,
+	searchRequestSchema,
+	timeRangeSchema,
 } from "./schemas.js";
 
-export type ApiFetchConfig = z.input<typeof apiFetchConfigSchema>;
-export type ApiFetchContentType = z.infer<typeof apiFetchContentTypeSchema>;
-export type ApiHtmlMode = z.infer<typeof apiHtmlModeSchema>;
-export type ApiScrapeFormatEntry = z.input<typeof apiScrapeFormatEntrySchema>;
+export type Service = "scrape" | "extract" | "search" | "monitor" | "crawl";
+export type HtmlMode = z.infer<typeof htmlModeSchema>;
+export type FetchMode = z.infer<typeof fetchModeSchema>;
+export type TimeRange = z.infer<typeof timeRangeSchema>;
+export type CrawlStatus = "running" | "completed" | "failed" | "paused" | "deleted";
+export type CrawlPageStatus = "completed" | "failed" | "skipped";
+export type HistoryStatus = "completed" | "failed" | "running" | "paused" | "deleted";
+export type MonitorTickStatus = "completed" | "failed" | "paused" | "running";
+export type FetchContentType = z.infer<typeof fetchContentTypeSchema>;
 
-export type ApiScrapeRequest = z.input<typeof apiScrapeRequestSchema>;
-export type ApiExtractRequest = z.input<typeof apiExtractRequestBaseSchema>;
-export type ApiSearchRequest = z.input<typeof apiSearchRequestSchema>;
-export type ApiCrawlRequest = z.input<typeof apiCrawlRequestSchema>;
-export type ApiMonitorCreateInput = z.input<typeof apiMonitorCreateSchema>;
-export type ApiMonitorUpdateInput = z.input<typeof apiMonitorUpdateSchema>;
-export type ApiHistoryFilter = z.input<typeof apiHistoryFilterSchema>;
+export type MockConfig = z.input<typeof mockConfigSchema>;
+export type FetchConfig = z.input<typeof fetchConfigSchema>;
 
-export type ApiScrapeFormat =
+export type MarkdownFormatConfig = z.input<typeof formatConfigSchema> & { type: "markdown" };
+export type HtmlFormatConfig = z.input<typeof formatConfigSchema> & { type: "html" };
+export type ScreenshotFormatConfig = z.input<typeof formatConfigSchema> & { type: "screenshot" };
+export type JsonFormatConfig = z.input<typeof formatConfigSchema> & { type: "json" };
+export type LinksFormatConfig = z.input<typeof formatConfigSchema> & { type: "links" };
+export type ImagesFormatConfig = z.input<typeof formatConfigSchema> & { type: "images" };
+export type SummaryFormatConfig = z.input<typeof formatConfigSchema> & { type: "summary" };
+export type BrandingFormatConfig = z.input<typeof formatConfigSchema> & { type: "branding" };
+export type FormatConfig = z.input<typeof formatConfigSchema>;
+
+export type FormatType =
 	| "markdown"
 	| "html"
 	| "links"
@@ -36,30 +50,29 @@ export type ApiScrapeFormat =
 	| "branding"
 	| "screenshot";
 
-export interface ApiTokenUsage {
+export type ScrapeRequest = z.input<typeof scrapeRequestSchema>;
+export type ExtractRequest = z.input<typeof extractRequestSchema>;
+export type SearchRequest = z.input<typeof searchRequestSchema>;
+export type CrawlRequest = z.input<typeof crawlRequestSchema>;
+export type MonitorCreateRequest = z.input<typeof monitorCreateRequestSchema>;
+export type MonitorUpdateRequest = z.input<typeof monitorUpdateRequestSchema>;
+export type MonitorActivityRequest = z.input<typeof monitorActivityRequestSchema>;
+export type HistoryFilter = z.input<typeof historyFilterSchema>;
+
+export interface TokenUsage {
 	promptTokens: number;
 	completionTokens: number;
 }
 
-export interface ApiChunkerMetadata {
+export interface ChunkerMetadata {
 	chunks: { size: number }[];
 }
 
-export interface ApiFetchWarning {
-	reason: "too_short" | "empty" | "bot_blocked" | "spa_shell" | "soft_404";
-	provider?: string;
-}
+export type FetchWarningReason = "too_short" | "empty" | "bot_blocked" | "spa_shell" | "soft_404";
 
-export interface ScrapeMetadata {
+export interface FetchWarning {
+	reason: FetchWarningReason;
 	provider?: string;
-	contentType: string;
-	elapsedMs?: number;
-	warnings?: ApiFetchWarning[];
-	ocr?: {
-		model: string;
-		pagesProcessed: number;
-		pages: ContentPageMetadata[];
-	};
 }
 
 export interface ContentPageMetadata {
@@ -76,7 +89,19 @@ export interface ContentPageMetadata {
 	dimensions: { dpi: number; height: number; width: number };
 }
 
-export interface ApiBrandingColors {
+export interface ScrapeMetadata {
+	provider?: string;
+	contentType: string;
+	elapsedMs?: number;
+	warnings?: FetchWarning[];
+	ocr?: {
+		model: string;
+		pagesProcessed: number;
+		pages: ContentPageMetadata[];
+	};
+}
+
+export interface BrandingColors {
 	primary: string;
 	accent: string;
 	background: string;
@@ -84,42 +109,42 @@ export interface ApiBrandingColors {
 	link: string;
 }
 
-export interface ApiBrandingFontEntry {
+export interface BrandingFontEntry {
 	family: string;
 	fallback: string;
 }
 
-export interface ApiBrandingTypography {
-	primary: ApiBrandingFontEntry;
-	heading: ApiBrandingFontEntry;
-	mono: ApiBrandingFontEntry;
+export interface BrandingTypography {
+	primary: BrandingFontEntry;
+	heading: BrandingFontEntry;
+	mono: BrandingFontEntry;
 	sizes: { h1: string; h2: string; body: string };
 }
 
-export interface ApiBrandingImages {
+export interface BrandingImages {
 	logo: string;
 	favicon: string;
 	ogImage: string;
 }
 
-export interface ApiBrandingPersonality {
+export interface BrandingPersonality {
 	tone: string;
 	energy: "high" | "medium" | "low";
 	targetAudience: string;
 }
 
-export interface ApiBranding {
+export interface Branding {
 	colorScheme: "light" | "dark";
-	colors: ApiBrandingColors;
-	typography: ApiBrandingTypography;
-	images: ApiBrandingImages;
+	colors: BrandingColors;
+	typography: BrandingTypography;
+	images: BrandingImages;
 	spacing: { baseUnit: number; borderRadius: string };
 	frameworkHints: string[];
-	personality: ApiBrandingPersonality;
+	personality: BrandingPersonality;
 	confidence: number;
 }
 
-export interface ApiBrandingMetadata {
+export interface BrandingMetadata {
 	title: string;
 	description: string;
 	favicon: string;
@@ -131,91 +156,88 @@ export interface ApiBrandingMetadata {
 	ogUrl: string;
 }
 
-export interface ApiScrapeScreenshotData {
+export interface ScreenshotData {
 	url: string;
 	width: number;
 	height: number;
 }
 
-export interface ApiScrapeFormatError {
+export interface FormatError {
 	code: string;
 	error: string;
 }
 
-export interface ApiScrapeFormatResponseMap {
+export interface FormatResponseMap {
 	markdown: string[];
 	html: string[];
 	links: string[];
 	images: string[];
 	summary: string;
 	json: Record<string, unknown>;
-	branding: ApiBranding;
-	screenshot: ApiScrapeScreenshotData;
+	branding: Branding;
+	screenshot: ScreenshotData;
 }
 
-export type ApiImageContentType = Extract<ApiFetchContentType, `image/${string}`>;
+export type ImageContentType = Extract<FetchContentType, `image/${string}`>;
 
-export interface ApiScrapeFormatMetadataMap {
+export interface FormatMetadataMap {
 	markdown: Record<string, never>;
 	html: Record<string, never>;
 	links: { count: number };
 	images: { count: number };
-	summary: { chunker?: ApiChunkerMetadata };
-	json: { chunker: ApiChunkerMetadata; raw?: string | null };
-	branding: { branding: ApiBrandingMetadata };
-	screenshot: { contentType: ApiImageContentType; provider?: string };
+	summary: { chunker?: ChunkerMetadata };
+	json: { chunker: ChunkerMetadata; raw?: string | null };
+	branding: { branding: BrandingMetadata };
+	screenshot: { contentType: ImageContentType; provider?: string };
 }
 
-export type ApiScrapeResultMap = Partial<{
-	[K in ApiScrapeFormat]: {
-		data: ApiScrapeFormatResponseMap[K];
-		metadata?: ApiScrapeFormatMetadataMap[K];
+export type ScrapeResultMap = Partial<{
+	[K in FormatType]: {
+		data: FormatResponseMap[K];
+		metadata?: FormatMetadataMap[K];
 	};
 }>;
 
-export interface ApiScrapeResponse {
-	results: ApiScrapeResultMap;
+export interface ScrapeResponse {
+	results: ScrapeResultMap;
 	metadata: ScrapeMetadata;
-	errors?: Partial<{ [K in ApiScrapeFormat]: ApiScrapeFormatError }>;
+	errors?: Partial<{ [K in FormatType]: FormatError }>;
 }
 
-export interface ApiExtractResponse {
+export interface ExtractResponse {
 	raw: string | null;
 	json: Record<string, unknown> | null;
-	usage: ApiTokenUsage;
+	usage: TokenUsage;
 	metadata: {
-		chunker: ApiChunkerMetadata;
+		chunker: ChunkerMetadata;
 		fetch?: { provider?: string };
 	};
 }
 
-export interface ApiSearchResult {
+export interface SearchResult {
 	url: string;
 	title: string;
 	content: string;
 	provider?: string;
 }
 
-export interface ApiSearchMetadata {
+export interface SearchMetadata {
 	search: { provider?: string };
 	pages: { requested: number; scraped: number };
-	chunker?: ApiChunkerMetadata;
+	chunker?: ChunkerMetadata;
 }
 
-export interface ApiSearchResponse {
-	results: ApiSearchResult[];
+export interface SearchResponse {
+	results: SearchResult[];
 	json?: Record<string, unknown> | null;
 	raw?: string | null;
-	usage?: ApiTokenUsage;
-	metadata: ApiSearchMetadata;
+	usage?: TokenUsage;
+	metadata: SearchMetadata;
 }
 
-export type ApiCrawlStatus = "running" | "completed" | "failed" | "paused" | "deleted";
-export type ApiCrawlPageStatus = "completed" | "failed" | "skipped";
-
-export interface ApiCrawlPage {
+export interface CrawlPage {
 	url: string;
-	status: ApiCrawlPageStatus;
+	status: CrawlPageStatus;
 	depth: number;
 	parentUrl: string | null;
 	links: string[];
@@ -227,15 +249,15 @@ export interface ApiCrawlPage {
 	error?: string;
 }
 
-export interface ApiCrawlResult {
-	status: ApiCrawlStatus;
+export interface CrawlResult {
+	status: CrawlStatus;
 	reason?: string;
 	total: number;
 	finished: number;
-	pages: ApiCrawlPage[];
+	pages: CrawlPage[];
 }
 
-export interface ApiCrawlResponse extends ApiCrawlResult {
+export interface CrawlResponse extends CrawlResult {
 	id: string;
 }
 
@@ -262,7 +284,7 @@ export interface ImageChange {
 	mask?: string;
 }
 
-export interface ApiMonitorDiffs {
+export interface MonitorDiffs {
 	markdown?: TextChange[];
 	html?: TextChange[];
 	json?: JsonChange[];
@@ -273,135 +295,125 @@ export interface ApiMonitorDiffs {
 	branding?: JsonChange[];
 }
 
-export type ApiMonitorRefs = Partial<Record<ApiScrapeFormat, string>>;
+export type MonitorRefs = Partial<Record<FormatType, string>>;
 
-export interface ApiWebhookStatus {
+export interface WebhookStatus {
 	sentAt: string;
 	statusCode: number | null;
 	error?: string;
 }
 
-export interface ApiMonitorResult {
+export interface MonitorResult {
 	changed: boolean;
-	diffs: ApiMonitorDiffs;
-	refs: ApiMonitorRefs;
-	webhookStatus?: ApiWebhookStatus;
+	diffs: MonitorDiffs;
+	refs: MonitorRefs;
+	webhookStatus?: WebhookStatus;
 }
 
-export interface ApiMonitorResponse {
+export interface MonitorResponse {
 	cronId: string;
 	scheduleId: string;
 	interval: string;
 	status: "active" | "paused";
-	config: ApiMonitorCreateInput;
+	config: MonitorCreateRequest;
 	createdAt: string;
 	updatedAt: string;
 }
 
-export type ApiMonitorTickStatus = "completed" | "failed" | "paused" | "running";
-
-export interface ApiMonitorTickEntry {
+export interface MonitorTickEntry {
 	id: string;
-	status: ApiMonitorTickStatus;
+	status: MonitorTickStatus;
 	createdAt: string;
 	elapsedMs: number;
 	changed: boolean;
-	diffs: ApiMonitorDiffs;
+	diffs: MonitorDiffs;
 	error?: string;
 }
 
-export interface ApiMonitorActivityResponse {
-	ticks: ApiMonitorTickEntry[];
+export interface MonitorActivityResponse {
+	ticks: MonitorTickEntry[];
 	nextCursor: string | null;
 }
 
-export interface ApiMonitorActivityParams {
-	limit?: number;
-	cursor?: string;
-}
-
-export type ApiHistoryService = "scrape" | "extract" | "search" | "monitor" | "crawl";
-export type ApiHistoryStatus = "completed" | "failed" | "running" | "paused" | "deleted";
-
-interface ApiHistoryBase {
+interface HistoryBase {
 	id: string;
-	status: ApiHistoryStatus;
+	status: HistoryStatus;
 	error: unknown;
 	elapsedMs: number;
 	createdAt: string;
 	requestParentId: string | null;
 }
 
-export interface ApiScrapeHistoryEntry extends ApiHistoryBase {
+export interface ScrapeHistoryEntry extends HistoryBase {
 	service: "scrape";
-	params: ApiScrapeRequest;
-	result: ApiScrapeResponse;
+	params: ScrapeRequest;
+	result: ScrapeResponse;
 }
 
-export interface ApiExtractHistoryEntry extends ApiHistoryBase {
+export interface ExtractHistoryEntry extends HistoryBase {
 	service: "extract";
-	params: ApiExtractRequest;
-	result: ApiExtractResponse;
+	params: ExtractRequest;
+	result: ExtractResponse;
 }
 
-export interface ApiSearchHistoryEntry extends ApiHistoryBase {
+export interface SearchHistoryEntry extends HistoryBase {
 	service: "search";
-	params: ApiSearchRequest;
-	result: ApiSearchResponse;
+	params: SearchRequest;
+	result: SearchResponse;
 }
 
-export interface ApiMonitorHistoryEntry extends ApiHistoryBase {
+export interface MonitorHistoryEntry extends HistoryBase {
 	service: "monitor";
 	params: { cronId: string; url: string };
-	result: ApiMonitorResult;
+	result: MonitorResult;
 }
 
-export interface ApiCrawlHistoryEntry extends ApiHistoryBase {
+export interface CrawlHistoryEntry extends HistoryBase {
 	service: "crawl";
 	params: { url: string; maxPages: number };
-	result: ApiCrawlResult;
+	result: CrawlResult;
 }
 
-export type ApiHistoryEntry =
-	| ApiScrapeHistoryEntry
-	| ApiExtractHistoryEntry
-	| ApiSearchHistoryEntry
-	| ApiMonitorHistoryEntry
-	| ApiCrawlHistoryEntry;
+export type HistoryEntry =
+	| ScrapeHistoryEntry
+	| ExtractHistoryEntry
+	| SearchHistoryEntry
+	| MonitorHistoryEntry
+	| CrawlHistoryEntry;
 
-export interface ApiPageResponse<T> {
+export interface HistoryPagination {
+	page: number;
+	limit: number;
+	total: number;
+}
+
+export interface PageResponse<T> {
 	data: T[];
-	pagination: {
-		page: number;
-		limit: number;
-		total: number;
-	};
+	pagination: HistoryPagination;
 }
 
-export type ApiHistoryPage = ApiPageResponse<ApiHistoryEntry>;
+export type HistoryPage = PageResponse<HistoryEntry>;
 
-export interface ApiJobsStatus {
+export interface JobsStatus {
 	used: number;
 	limit: number;
 }
 
-export interface ApiCreditsResponse {
+export interface CreditsJobs {
+	crawl: JobsStatus;
+	monitor: JobsStatus;
+}
+
+export interface CreditsResponse {
 	remaining: number;
 	used: number;
 	plan: string;
-	jobs: {
-		crawl: ApiJobsStatus;
-		monitor: ApiJobsStatus;
-	};
+	jobs: CreditsJobs;
 }
 
-export interface ApiHealthResponse {
-	status: string;
+export interface HealthResponse {
+	status: "ok" | "degraded";
 	uptime: number;
-	services?: {
-		redis: "ok" | "down";
-		db: "ok" | "down";
-	};
 }
 
 export interface ApiResult<T> {
