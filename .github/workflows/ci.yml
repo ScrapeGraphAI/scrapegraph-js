@@ -13,6 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - name: Use local scrapegraph-js package
+        run: sed -i 's/"scrapegraph-js": "\^2.2.0"/"scrapegraph-js": "file:..\/.."/' packages/ai-sdk/package.json
       - run: bun install
       - run: bun run test
 
@@ -22,5 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - name: Use local scrapegraph-js package
+        run: sed -i 's/"scrapegraph-js": "\^2.2.0"/"scrapegraph-js": "file:..\/.."/' packages/ai-sdk/package.json
       - run: bun install
+      - run: bun run build
       - run: bun run check
+      - run: cd packages/ai-sdk && bun run check
+      - run: cd packages/ai-sdk && bun run build

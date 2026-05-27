@@ -1,16 +1,17 @@
 {
 	"name": "scrapegraph-js",
-	"version": "2.1.0",
+	"version": "2.2.0",
 	"description": "Official JavaScript/TypeScript SDK for the ScrapeGraph AI API — smart web scraping powered by AI",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
 		}
 	},
+	"workspaces": ["packages/*"],
 	"scripts": {
 		"dev": "tsup --watch",
 		"build": "tsup",

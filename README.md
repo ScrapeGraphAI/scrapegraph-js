@@ -21,6 +21,16 @@ bun add scrapegraph-js
 
 ## Quick Start
 
+### API key
+
+Log in to the [ScrapeGraphAI dashboard](https://scrapegraphai.com/) to create an API key. The dashboard also shows your request history, usage, credits, and crawl/monitor activity.
+
+Set it in your environment:
+
+```bash
+export SGAI_API_KEY=...
+```
+
 ```ts
 import { ScrapeGraphAI } from "scrapegraph-js";
 
@@ -139,6 +149,12 @@ const start = await sgai.crawl.start({
 
 // Check status
 const status = await sgai.crawl.get(start.data?.id!);
+
+// Fetch paginated pages with resolved scrape results
+const pages = await sgai.crawl.pages(start.data?.id!, {
+  cursor: 0,
+  limit: 50,
+});
 
 // Control
 await sgai.crawl.stop(id);
