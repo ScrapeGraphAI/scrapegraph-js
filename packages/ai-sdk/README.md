@@ -1,6 +1,6 @@
 # ScrapeGraphAI AI SDK Tools
 
-[![npm version](https://badge.fury.io/js/%40scrapegraphai%2Fai-sdk.svg)](https://www.npmjs.com/package/@scrapegraphai/ai-sdk)
+[![npm version](https://badge.fury.io/js/%40scrapegraph-ai%2Fai-sdk.svg)](https://www.npmjs.com/package/@scrapegraph-ai/ai-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 <p align="center">
@@ -14,9 +14,9 @@ Vercel [AI SDK](https://ai-sdk.dev/docs/introduction) tools for the ScrapeGraphA
 ## Install
 
 ```bash
-npm i @scrapegraphai/ai-sdk ai
+npm i @scrapegraph-ai/ai-sdk ai
 # or
-bun add @scrapegraphai/ai-sdk ai
+bun add @scrapegraph-ai/ai-sdk ai
 ```
 
 `ai` is a peer dependency. Install the model provider package you use, for example:
@@ -44,7 +44,7 @@ Minimal scrape-only setup:
 ```ts
 import { openai } from "@ai-sdk/openai";
 import { generateText, stepCountIs } from "ai";
-import { scrapeTool } from "@scrapegraphai/ai-sdk";
+import { scrapeTool } from "@scrapegraph-ai/ai-sdk";
 
 const result = await generateText({
   model: openai("gpt-5-nano"),
@@ -69,7 +69,7 @@ import {
   monitorTools,
   scrapeTool,
   searchTool,
-} from "@scrapegraphai/ai-sdk";
+} from "@scrapegraph-ai/ai-sdk";
 
 const result = await generateText({
   model: openai("gpt-5-nano"),
@@ -102,7 +102,7 @@ const tools = {
 Scrape a webpage with ScrapeGraphAI. Supports markdown, html, json extraction, links, images, summary, branding, and screenshots.
 
 ```ts
-import { scrapeTool } from "@scrapegraphai/ai-sdk";
+import { scrapeTool } from "@scrapegraph-ai/ai-sdk";
 
 const tools = {
   scrape: scrapeTool(),
@@ -114,7 +114,7 @@ const tools = {
 Extract structured JSON from a URL, HTML, or markdown with a natural-language prompt.
 
 ```ts
-import { extractTool } from "@scrapegraphai/ai-sdk";
+import { extractTool } from "@scrapegraph-ai/ai-sdk";
 
 const tools = {
   extract: extractTool(),
@@ -126,7 +126,7 @@ const tools = {
 Search the web and optionally extract structured data from search results.
 
 ```ts
-import { searchTool } from "@scrapegraphai/ai-sdk";
+import { searchTool } from "@scrapegraph-ai/ai-sdk";
 
 const tools = {
   search: searchTool(),
@@ -138,7 +138,7 @@ const tools = {
 Start, poll, page through, stop, resume, and delete ScrapeGraphAI crawl jobs.
 
 ```ts
-import { crawlTools } from "@scrapegraphai/ai-sdk";
+import { crawlTools } from "@scrapegraph-ai/ai-sdk";
 
 const tools = {
   ...crawlTools(),
@@ -160,7 +160,7 @@ const tools = {
 Create, list, update, pause, resume, delete, and fetch activity for ScrapeGraphAI monitors.
 
 ```ts
-import { monitorTools } from "@scrapegraphai/ai-sdk";
+import { monitorTools } from "@scrapegraph-ai/ai-sdk";
 
 const tools = {
   ...monitorTools(),

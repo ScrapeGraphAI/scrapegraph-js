@@ -2,7 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import { generateText, stepCountIs, type ModelMessage } from "ai";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
-import { crawlTools } from "../src/index";
+import { crawlTools } from "@scrapegraph-ai/ai-sdk";
 
 const initialPrompt =
 	"Find 10 https://scrapegraphai.com/ blog posts. Start a crawl, poll its status, fetch crawled pages with getCrawlPages, then summarize what you found.";

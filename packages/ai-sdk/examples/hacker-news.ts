@@ -1,6 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { generateText, stepCountIs } from "ai";
-import { scrapeTool } from "../src/index";
+import { scrapeTool } from "@scrapegraph-ai/ai-sdk";
 
 const { text } = await generateText({
 	model: openai("gpt-5-nano"),

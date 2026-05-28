@@ -1,6 +1,6 @@
 {
 	"name": "@scrapegraph-ai/ai-sdk",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Vercel AI SDK tools integration for ScrapeGraphAI.",
 	"type": "module",
 	"main": "dist/index.js",
