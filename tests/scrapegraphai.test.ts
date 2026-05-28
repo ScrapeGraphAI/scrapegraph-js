@@ -906,6 +906,35 @@ describe("crawl", () => {
 		expectRequest(0, "GET", "/crawl/crawl-123");
 	});
 
+	test("pages success", async () => {
+		const body = {
+			data: [
+				{
+					url: "https://example.com",
+					status: "completed",
+					depth: 0,
+					parentUrl: null,
+					links: [],
+					scrapeRefId: "scrape-123",
+					title: "Example",
+					contentType: "text/html",
+					scrape: {
+						results: { markdown: { data: ["# Example"] } },
+						metadata: { contentType: "text/html" },
+					},
+				},
+			],
+			pagination: { limit: 50, nextCursor: null },
+		};
+		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json(body));
+
+		const res = await sdk.crawl.pages(API_KEY, "crawl-123", { cursor: 0, limit: 50 });
+
+		expect(res.status).toBe("success");
+		expect(res.data).toEqual(body);
+		expectRequest(0, "GET", "/crawl/crawl-123/pages?cursor=0&limit=50");
+	});
+
 	test("stop success", async () => {
 		fetchSpy = spyOn(globalThis, "fetch").mockResolvedValueOnce(json({ ok: true }));
 

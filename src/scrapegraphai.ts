@@ -1,16 +1,18 @@
 import { env } from "./env.js";
 import type {
 	ApiResult,
+	CrawlPagesQuery,
+	CrawlPagesResponse,
 	CrawlRequest,
 	CrawlResponse,
 	CreditsResponse,
-	ExtractRequest,
+	ExtractRequestBase,
 	ExtractResponse,
 	HealthResponse,
 	HistoryEntry,
 	HistoryFilter,
 	HistoryPage,
-	MonitorActivityRequest,
+	MonitorActivityQuery,
 	MonitorActivityResponse,
 	MonitorCreateRequest,
 	MonitorResponse,
@@ -122,7 +124,7 @@ export async function scrape(
 
 export async function extract(
 	apiKey: string,
-	params: ExtractRequest,
+	params: ExtractRequestBase,
 ): Promise<ApiResult<ExtractResponse>> {
 	try {
 		const { data, elapsedMs } = await request<ExtractResponse>("POST", "/extract", apiKey, params);
@@ -201,6 +203,24 @@ export const crawl = {
 	async get(apiKey: string, id: string): Promise<ApiResult<CrawlResponse>> {
 		try {
 			const { data, elapsedMs } = await request<CrawlResponse>("GET", `/crawl/${id}`, apiKey);
+			return ok(data, elapsedMs);
+		} catch (err) {
+			return fail(err);
+		}
+	},
+
+	async pages(
+		apiKey: string,
+		id: string,
+		params?: Partial<CrawlPagesQuery>,
+	): Promise<ApiResult<CrawlPagesResponse>> {
+		try {
+			const qs = new URLSearchParams();
+			if (params?.cursor !== undefined) qs.set("cursor", String(params.cursor));
+			if (params?.limit !== undefined) qs.set("limit", String(params.limit));
+			const query = qs.toString();
+			const path = query ? `/crawl/${id}/pages?${query}` : `/crawl/${id}/pages`;
+			const { data, elapsedMs } = await request<CrawlPagesResponse>("GET", path, apiKey);
 			return ok(data, elapsedMs);
 		} catch (err) {
 			return fail(err);
@@ -336,7 +356,7 @@ export const monitor = {
 	async activity(
 		apiKey: string,
 		id: string,
-		params?: MonitorActivityRequest,
+		params?: MonitorActivityQuery,
 	): Promise<ApiResult<MonitorActivityResponse>> {
 		try {
 			const qs = new URLSearchParams();
@@ -366,7 +386,7 @@ export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
 	const key = resolveApiKey(opts);
 	return {
 		scrape: (params: ScrapeRequest) => scrape(key, params),
-		extract: (params: ExtractRequest) => extract(key, params),
+		extract: (params: ExtractRequestBase) => extract(key, params),
 		search: (params: SearchRequest) => search(key, params),
 		credits: () => getCredits(key),
 		healthy: () => checkHealth(key),
@@ -377,6 +397,7 @@ export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
 		crawl: {
 			start: (params: CrawlRequest) => crawl.start(key, params),
 			get: (id: string) => crawl.get(key, id),
+			pages: (id: string, params?: Partial<CrawlPagesQuery>) => crawl.pages(key, id, params),
 			stop: (id: string) => crawl.stop(key, id),
 			resume: (id: string) => crawl.resume(key, id),
 			delete: (id: string) => crawl.delete(key, id),
@@ -389,7 +410,7 @@ export function ScrapeGraphAI(opts?: ScrapeGraphAIInput) {
 			delete: (id: string) => monitor.delete(key, id),
 			pause: (id: string) => monitor.pause(key, id),
 			resume: (id: string) => monitor.resume(key, id),
-			activity: (id: string, params?: MonitorActivityRequest) => monitor.activity(key, id, params),
+			activity: (id: string, params?: MonitorActivityQuery) => monitor.activity(key, id, params),
 		},
 	};
 }
